@@ -1,89 +1,166 @@
 # Namer Suggester
 
-![Versión](https://img.shields.io/badge/versión-1.0.0-blue)
-![Node](https://img.shields.io/badge/node-%3E%3D14.16.0-green)
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/juandape/name-suggester)
+![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-green)
 ![Licencia](https://img.shields.io/badge/licencia-MIT-orange)
 
-Una herramienta interactiva para analizar y mejorar la calidad de los nombres de variables, funciones y otros identificadores en proyectos JavaScript/TypeScript.
+Una herramienta para analizar y sugerir mejores nombres para variables, funciones y otros identificadores en tu código JavaScript/TypeScript.
 
-## 🚀 Características
+## Características
 
-- **Análisis de código** - Examina archivos JS/TS/JSX/TSX para identificar variables, funciones, métodos, etc.
-- **Sugerencias inteligentes** - Proporciona recomendaciones de nombres basadas en buenas prácticas de codificación
-- **Soporte para React** - Sugerencias específicas para componentes, hooks y patrones de React
-- **Navegación intuitiva** - Interfaz de línea de comandos para navegar por la estructura de archivos
-- **Compatible con monorepos** - Funciona con proyectos monorepo (Turborepo, Nx, etc.)
-- **Integración con múltiples IAs** - Obtiene sugerencias de GitHub Copilot, OpenAI, Anthropic Claude, Ollama y Google Gemini
-- **Configuración flexible** - Permite seleccionar y configurar diferentes proveedores de IA
-- **Fallback automático** - Si un proveedor no está disponible, intenta con el siguiente
-- **Registro de sugerencias** - Guarda todas las recomendaciones para futuras referencias
+- 🔍 Navega por la estructura de carpetas del proyecto o busca archivos por patrón
+- 🧠 Analiza funciones, variables, métodos de clase, propiedades y más
+- 💡 Genera sugerencias de nombres basadas en el contexto y buenas prácticas
+- 🤖 Integración con múltiples proveedores de IA (GitHub Copilot, OpenAI, Claude, Ollama, Gemini)
+- 🔄 Sistema de fallback automático entre proveedores de IA
+- ⚙️ Configuración flexible de proveedores de IA según preferencias
+- 📝 Registra todas las sugerencias en un archivo log para referencia futura
 
-## 📋 Requisitos
+## Requisitos
 
-- **Node.js** >= 14.16.0
-- **Dependencias**: @babel/parser, @babel/traverse, inquirer
+- Node.js >= 14.0.0
+- Dependencias principales:
+  - @babel/parser
+  - @babel/traverse
+  - inquirer
+  - node-fetch (para comunicación con APIs de IA)
+- Opcionales (según el proveedor de IA elegido):
+  - GitHub Copilot CLI
+  - API key de OpenAI
+  - API key de Anthropic Claude
+  - Ollama (corriendo localmente)
+  - API key de Google Gemini
 
-## 🔧 Instalación
+## Instalación
 
-### Instalación global (recomendada)
+### Instalación desde GitHub
+
+La forma más sencilla de instalar la herramienta es directamente desde GitHub:
+
+```bash
+# Con npm
+npm install -g github:juandape/name-suggester
+
+# Con Yarn
+yarn global add github:juandape/name-suggester
+```
+
+También puedes instalarlo como dependencia de desarrollo en tu proyecto:
+
+```bash
+# Con npm
+npm install --save-dev github:juandape/name-suggester
+
+# Con Yarn
+yarn add --dev github:juandape/name-suggester
+```
+
+Para una versión específica o rama:
+
+```bash
+# Instalar desde una rama específica
+npm install -g github:juandape/name-suggester#desarrollo
+
+# Instalar una versión específica por tag
+npm install -g github:juandape/name-suggester#v1.0.0
+```
+
+### Instalación local (clonando el repositorio)
+
+Si prefieres clonar el repositorio y luego instalar:
 
 ```bash
 # Clonar el repositorio
-git clone https://github.com/tu-usuario/namer-suggester.git
-cd namer-suggester
+git clone https://github.com/juandape/name-suggester.git
+cd name-suggester
 
-# Instalar globalmente
+# Instalar dependencias con npm
+npm install
+
+# O instalar dependencias con Yarn
+yarn
+```
+
+### Instalación global (después de clonar)
+
+Para instalar la herramienta de forma global y utilizarla en cualquier proyecto:
+
+```bash
+# Con npm
 npm install -g .
 
-# Ahora puedes ejecutar desde cualquier proyecto
-cd /ruta/a/tu/proyecto
-namer-suggester
+# Con Yarn
+yarn global add file:.
 ```
 
-### Instalación local en un proyecto
+## Uso
+
+### Ejecución directa (sin instalación)
+
+Puedes ejecutar la herramienta directamente desde GitHub sin instalación previa:
 
 ```bash
-# Navegar al proyecto donde quieres usar la herramienta
-cd /ruta/a/tu/proyecto
+# Usando npx
+npx github:juandape/name-suggester
 
-# Instalar desde el repositorio
-npm install -D /ruta/a/namer-suggester
-
-# Configurar
-node node_modules/namer-suggester/setup-namer-suggester.mjs
-
-# Ejecutar con npx
-npx namer-suggester
+# O con Yarn
+yarn dlx github:juandape/name-suggester
 ```
 
-### Instalación rápida
+### Ejecución después de instalar
 
 ```bash
-# Descargar e instalar en un solo paso
-npx github:tu-usuario/namer-suggester
+# Si lo ejecutas desde el repositorio clonado
+node namer-suggester.mjs
 
-# O ejecutar directamente sin instalar
-npx github:tu-usuario/namer-suggester
-```
-
-## 📝 Uso
-
-```bash
-# Si está instalado globalmente
+# Si lo has instalado globalmente con npm
 namer-suggester
 
-# Si está instalado localmente
+# Si lo has instalado como dependencia local con npm
 npx namer-suggester
-# o
-npm run namer-suggester
+
+# Si lo has instalado con Yarn globalmente
+namer-suggester
+
+# Si lo has instalado con Yarn localmente
+yarn namer-suggester
 ```
 
-### Navegación por el proyecto
+### Navegación
 
-1. Al iniciar, selecciona una carpeta raíz o busca por patrón
-2. Navega por los directorios o selecciona archivos individuales
-3. Revisa las sugerencias para cada identificador encontrado
-4. Todas las sugerencias se guardan en `namer-suggester.log`
+1. Selecciona una carpeta raíz para comenzar (`apps`, `packages` o `src`)
+2. Navega por la estructura de carpetas o utiliza la búsqueda por patrón
+3. Selecciona un archivo individual o un directorio completo para analizar:
+   - Para analizar un archivo individual, selecciónalo de la lista
+   - Para analizar un directorio completo, usa la opción "✅ Seleccionar este directorio completo"
+   - Para volver atrás, usa la opción "⬅️ Volver al directorio anterior"
+   - Para volver al inicio, usa la opción "🏠 Volver al inicio"
+
+### Análisis y sugerencias
+
+Para cada identificador (función, variable, etc.) encontrado, el script:
+
+1. Muestra el tipo de identificador y su nombre original
+2. Genera sugerencias basadas en el contexto y buenas prácticas
+3. Intenta obtener sugerencias adicionales de GitHub Copilot (marcadas con ✨)
+4. Te permite elegir entre mantener el nombre original o cambiar a una de las sugerencias
+5. Registra todas las sugerencias en `namer-suggester.log` para referencia futura
+
+### Archivo de log
+
+Todas las sugerencias se registran en `namer-suggester.log` con el siguiente formato:
+
+```markdown
+## [timestamp] - [nombre_archivo]
+
+- **Archivo**: `ruta/al/archivo`
+- **Tipo**: function|variable|method|...
+- **Línea**: número de línea
+- **Nombre Original**: `nombreOriginal`
+- **Contexto**: react-component|api|testing|...
+- **Sugerencias**: `sugerencia1`, `sugerencia2`, ...
+- **Seleccionado**: `nombreSeleccionado`
+```
 
 ### Compatibilidad
 
@@ -95,27 +172,38 @@ Namer Suggester es compatible con varios tipos de proyectos:
 - ✅ Monorepos (Turborepo, Nx, pnpm workspaces, etc.)
 - ✅ Proyectos Node.js
 
-## 🧩 Integración con IA
+## Integración con IA
 
-Namer Suggester ofrece integración con múltiples proveedores de IA para obtener sugerencias más inteligentes y contextuales:
+La herramienta ofrece integración con múltiples proveedores de IA para obtener sugerencias más inteligentes y contextuales:
 
 ### Proveedores soportados
 
-- **GitHub Copilot CLI**: Integración directa con el CLI de Copilot
-- **OpenAI (GPT)**: Acceso a modelos como GPT-3.5 Turbo y GPT-4
+- **GitHub Copilot CLI**: La opción preferida y más integrada
+- **OpenAI (GPT)**: Modelos GPT-3.5 Turbo y GPT-4
 - **Anthropic Claude**: Modelos Claude Instant y Claude 2/3
-- **Ollama**: Modelos locales como Llama2, CodeLlama, etc.
-- **Google Gemini**: Acceso a los modelos Gemini Pro
+- **Ollama**: Modelos locales (Llama2, CodeLlama, etc.)
+- **Google Gemini**: Modelos Gemini Pro
 
-### Configuración
+### Configuración con GitHub Copilot CLI
 
-Para configurar los proveedores de IA:
+Para aprovechar las sugerencias de GitHub Copilot, puedes instalar el CLI:
 
-1. Ejecuta `namer-suggester` y selecciona "⚙️ Configurar proveedores de IA" en el menú principal
-2. Selecciona el proveedor que deseas utilizar
-3. Si seleccionas un proveedor específico, se te pedirá información adicional como la API key
+```bash
+# Instalar GitHub Copilot CLI con npm
+npm install -g @githubnext/github-copilot-cli
 
-También puedes crear manualmente un archivo `.ai-config.json` en tu proyecto o en tu directorio de usuario con el siguiente formato:
+# O con Yarn
+yarn global add @githubnext/github-copilot-cli
+
+# Autenticarse con GitHub Copilot
+github-copilot-cli auth
+```
+
+### Configuración de otros proveedores de IA
+
+Al ejecutar la herramienta, selecciona la opción "⚙️ Configurar proveedores de IA" en el menú principal para configurar interactivamente tu proveedor preferido.
+
+También puedes crear manualmente un archivo `.ai-config.json` en tu proyecto con la siguiente estructura:
 
 ```json
 {
@@ -139,33 +227,48 @@ También puedes crear manualmente un archivo `.ai-config.json` en tu proyecto o 
 }
 ```
 
-### GitHub Copilot CLI (opción recomendada)
+Si ningún proveedor de IA está disponible, la herramienta seguirá funcionando utilizando sus reglas predefinidas para generar sugerencias.
 
-Para usar GitHub Copilot CLI:
+## Extensiones y mejoras
+
+Si deseas extender o mejorar el script, puedes modificar:
+
+- La función `suggestNames()` para agregar nuevas reglas de sugerencias
+- La función `analyzeFile()` para detectar más tipos de identificadores
+- La función `extractFileContext()` para mejorar el análisis de contexto
+
+## Contribuciones y Actualizaciones
+
+### Mantener actualizado
+
+Si instalaste la herramienta desde GitHub, puedes actualizarla a la última versión:
 
 ```bash
-npm install -g @githubnext/github-copilot-cli
-github-copilot-cli auth
+# Si está instalada globalmente con npm
+npm update -g github:juandape/name-suggester
+
+# Si está instalada globalmente con Yarn
+yarn global upgrade github:juandape/name-suggester
+
+# Si clonaste el repositorio
+git pull origin main
+npm install  # o yarn
 ```
 
-El script detectará automáticamente si Copilot CLI está disponible y lo utilizará como primera opción para generar sugerencias de nombres.
+### Contribuir al proyecto
 
-## 🔍 Para desarrolladores
+¿Tienes ideas para mejorar la herramienta? ¡Las contribuciones son bienvenidas!
 
-Si quieres contribuir o modificar el script:
+1. Haz un fork del repositorio: [github.com/juandape/name-suggester](https://github.com/juandape/name-suggester)
+2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
+3. Realiza tus cambios y haz commits (`git commit -am 'Agrega nueva funcionalidad'`)
+4. Sube tus cambios a GitHub (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request desde tu fork a [juandape/name-suggester](https://github.com/juandape/name-suggester)
 
-```bash
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/namer-suggester.git
-cd namer-suggester
+### Reportar problemas
 
-# Instalar dependencias
-npm install
+Si encuentras algún error o tienes alguna sugerencia, por favor [abre un issue](https://github.com/juandape/name-suggester/issues) en el repositorio de GitHub.
 
-# Ejecutar en modo desarrollo
-node namer-suggester.mjs
-```
-
-## 📄 Licencia
+## Licencia
 
 MIT
