@@ -14,7 +14,7 @@ import fetch from 'node-fetch'; // Para realizar solicitudes HTTP a APIs de IA
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Clase simple para mostrar progreso en la consola
+// Clase mejorada para mostrar progreso en la consola
 class ProgressBar {
   constructor(total, prefix = 'Progreso:', suffix = 'Completado', length = 30) {
     this.total = total;
@@ -22,28 +22,43 @@ class ProgressBar {
     this.prefix = prefix;
     this.suffix = suffix;
     this.length = length;
+    this.lastRender = 0; // Para evitar renderizados excesivos
+    this.isActive = false; // Para controlar si hay una barra activa
     this.start();
   }
 
   start() {
     this.startTime = Date.now();
+    this.isActive = true;
     this.update(0);
   }
 
   update(current) {
+    // Solo actualizar la UI cada 100ms para evitar parpadeos
+    const now = Date.now();
+    if (now - this.lastRender < 100 && current !== this.total && current !== 0)
+      return;
+
+    this.lastRender = now;
     this.current = current;
+
+    // Limpiar línea anterior para evitar múltiples barras
+    process.stdout.write('\x1b[2K'); // Borrar la línea completa
+
     const percent = (current / this.total) * 100;
     const filledLength = Math.round((this.length * current) / this.total);
+
+    // Usar un solo carácter para una visualización más consistente
     const bar =
-      '█'.repeat(filledLength) + '░'.repeat(this.length - filledLength);
+      '■'.repeat(filledLength) + '□'.repeat(this.length - filledLength);
 
     // Calcular tiempo restante estimado
-    const elapsedTime = Date.now() - this.startTime;
+    const elapsedTime = now - this.startTime;
     const estimatedTotal =
       current > 0 ? (elapsedTime * this.total) / current : 0;
-    const remainingTime = estimatedTotal - elapsedTime;
+    const remainingTime = Math.max(0, estimatedTotal - elapsedTime);
     const timeStr =
-      remainingTime > 0
+      remainingTime > 0 && current < this.total
         ? ` (${Math.round(remainingTime / 1000)}s restantes)`
         : '';
 
@@ -55,6 +70,14 @@ class ProgressBar {
 
     if (current === this.total) {
       process.stdout.write('\n');
+      this.isActive = false;
+    }
+  }
+
+  // Método para forzar la finalización de la barra
+  complete() {
+    if (this.isActive) {
+      this.update(this.total);
     }
   }
 }
@@ -897,28 +920,45 @@ function analyzeFile(filePath) {
 
 // Función para registrar sugerencias en un archivo log
 function logSuggestions(filePath, item, suggestions, selected, fileContext) {
-  const logFile = 'namer-suggester.log';
+  // Usamos una ruta absoluta para asegurar que funcione en cualquier entorno
+  const logFile = path.resolve(process.cwd(), 'namer-suggester.log');
   const timestamp = new Date().toISOString();
 
-  let logContent = '';
-  if (!fs.existsSync(logFile)) {
-    logContent = `# Registro de Sugerencias de Nombres\n\n`;
-  } else {
-    logContent = fs.readFileSync(logFile, 'utf-8');
-  }
+  try {
+    // Crear el encabezado si el archivo no existe
+    if (!fs.existsSync(logFile)) {
+      fs.writeFileSync(
+        logFile,
+        `# Registro de Sugerencias de Nombres\n\n`,
+        'utf-8'
+      );
+    }
 
-  const entry = `
+    const entry = `
 ## ${timestamp} - ${path.basename(filePath)}
 - **Archivo**: \`${filePath}\`
 - **Tipo**: ${item.type}
 - **Línea**: ${item.line || 'N/A'}
 - **Nombre Original**: \`${item.name}\`
-- **Contexto**: ${fileContext.context}
+- **Contexto**: ${fileContext.context || 'general'}
 - **Sugerencias**: ${suggestions.map((s) => `\`${s}\``).join(', ')}
 - **Seleccionado**: \`${selected}\`
-  `;
+`;
 
-  fs.writeFileSync(logFile, logContent + entry, 'utf-8');
+    // Añadir al archivo existente en lugar de sobrescribir
+    fs.appendFileSync(logFile, entry, 'utf-8');
+    console.log(`💾 Registro guardado en: ${logFile}`);
+  } catch (error) {
+    console.error(`⚠️ Error al guardar en el log: ${error.message}`);
+    // Intenta crear el log en el directorio del script como alternativa
+    try {
+      const fallbackLogFile = path.join(__dirname, 'namer-suggester.log');
+      fs.appendFileSync(fallbackLogFile, entry, 'utf-8');
+      console.log(`💾 Registro guardado en: ${fallbackLogFile}`);
+    } catch (fallbackError) {
+      console.error(`❌ No se pudo guardar el log: ${fallbackError.message}`);
+    }
+  }
 }
 
 async function showSuggestionsFor(results, fileContext, filePath) {
@@ -1395,83 +1435,61 @@ async function main() {
     );
   }
 
-  // Crear barra de progreso si hay muchos archivos
-  const showProgress = files.length > 5;
-  let progress;
-
-  if (showProgress) {
-    progress = new ProgressBar(
-      files.length,
-      '📊 Analizando archivos:',
-      'Completado',
-      30
-    );
-  }
+  // Crear una única barra de progreso para todo el proceso
+  const progress = new ProgressBar(
+    files.length,
+    '📊 Analizando archivos:',
+    'Completado',
+    20
+  );
 
   // Analizar cada archivo
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
+  try {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
 
-    if (showProgress) {
+      // Actualizar barra de progreso
       progress.update(i);
-    } else {
-      console.log(`\n📁 Analizando: ${file}`);
-    }
 
-    try {
-      const { results, fileContext } = analyzeFile(file);
+      // Mostrar info del archivo actual
+      console.log(`\n📁 Archivo actual: ${path.basename(file)}`);
 
-      if (results.length === 0) {
-        if (!showProgress) {
+      try {
+        const { results, fileContext } = analyzeFile(file);
+
+        if (results.length === 0) {
           console.log(
-            'ℹ️  No se encontraron identificadores para analizar en este archivo.'
+            '  ℹ️  No se encontraron identificadores para analizar en este archivo.'
+          );
+          continue;
+        }
+
+        totalItems += results.length;
+
+        // Mostrar información sobre el análisis
+        console.log(`  🔍 Se encontraron ${results.length} identificadores.`);
+        console.log(`  📄 Contexto: ${fileContext.context || 'general'}`);
+
+        if (fileContext.imports && fileContext.imports.length > 0) {
+          console.log(
+            `  📦 Importaciones: ${fileContext.imports.slice(0, 3).join(', ')}${
+              fileContext.imports.length > 3 ? '...' : ''
+            }`
           );
         }
-        continue;
-      }
 
-      totalItems += results.length;
+        // Mostrar las sugerencias para cada identificador
+        await showSuggestionsFor(results, fileContext, file);
 
-      if (!showProgress) {
-        console.log(
-          `🔍 Se encontraron ${results.length} identificadores para analizar.`
-        );
-        // Mostrar información sobre el contexto del archivo
-        console.log(`📄 Contexto del archivo: ${fileContext.context}`);
-        if (fileContext.imports.length > 0) {
-          console.log(
-            `📦 Importaciones principales: ${fileContext.imports
-              .slice(0, 3)
-              .join(', ')}${fileContext.imports.length > 3 ? '...' : ''}`
-          );
-        }
-      } else {
-        // En modo de progreso, solo mostrar archivos con resultados
-        process.stdout.write(
-          `\r                                                                                \r`
-        );
-        console.log(`\n📁 Archivo con resultados: ${file}`);
-        console.log(
-          `🔍 Se encontraron ${results.length} identificadores para analizar.`
-        );
-        console.log(`📄 Contexto: ${fileContext.context}`);
-      }
-
-      // Mostrar las sugerencias para cada identificador
-      await showSuggestionsFor(results, fileContext, file);
-
-      if (showProgress) {
-        // Actualizar la barra de progreso después de procesar las sugerencias
+        // Actualizar progreso tras completar el archivo
         progress.update(i + 1);
+      } catch (error) {
+        console.error(`  ❌ Error analizando ${file}: ${error.message}`);
       }
-    } catch (error) {
-      console.error(`❌ Error analizando ${file}:`, error.message);
     }
-  }
-
-  // Asegurar que la barra de progreso se complete
-  if (showProgress) {
-    progress.update(files.length);
+  } finally {
+    // Asegurar que la barra de progreso se complete
+    progress.complete();
   }
 
   // Mostrar estadísticas al final

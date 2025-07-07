@@ -37,30 +37,30 @@ La forma más sencilla de instalar la herramienta es directamente desde GitHub:
 
 ```bash
 # Con npm
-npm install -g github:juandape/name-suggester
+npm install -g name-suggester@https://github.com/juandape/name-suggester.git
 
 # Con Yarn
-yarn global add github:juandape/name-suggester
+yarn add name-suggester@https://github.com/juandape/name-suggester.git
 ```
 
 También puedes instalarlo como dependencia de desarrollo en tu proyecto:
 
 ```bash
 # Con npm
-npm install --save-dev github:juandape/name-suggester
+npm install --save-dev name-suggester@https://github.com/juandape/name-suggester.git
 
 # Con Yarn
-yarn add --dev github:juandape/name-suggester
+yarn add --dev name-suggester@https://github.com/juandape/name-suggester.git
 ```
 
 Para una versión específica o rama:
 
 ```bash
 # Instalar desde una rama específica
-npm install -g github:juandape/name-suggester#desarrollo
+npm install -g name-suggester@https://github.com/juandape/name-suggester.git#desarrollo
 
 # Instalar una versión específica por tag
-npm install -g github:juandape/name-suggester#v1.0.0
+npm install -g name-suggester@https://github.com/juandape/name-suggester.git#v1.0.0
 ```
 
 ### Instalación local (clonando el repositorio)
@@ -111,7 +111,7 @@ Puedes ejecutar la herramienta directamente desde GitHub sin instalación previa
 
 ```bash
 # Usando npx (recomendado para ejecución directa)
-npx github:juandape/name-suggester
+npx name-suggester@https://github.com/juandape/name-suggester.git
 ```
 
 > ⚠️ **Nota:** `yarn dlx` no soporta ejecutar paquetes directamente desde GitHub (formato `github:usuario/repo`). Si usas Yarn, instala globalmente o como dependencia y ejecuta con `yarn namer-suggester`.

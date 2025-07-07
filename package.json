@@ -1,6 +1,6 @@
 {
   "name": "namer-suggester",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Una herramienta para analizar y mejorar nombres de variables y funciones en proyectos JavaScript/TypeScript",
   "main": "namer-suggester.mjs",
   "type": "module",
