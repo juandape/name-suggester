@@ -1,0 +1,43 @@
+{
+  "name": "namer-suggester",
+  "version": "1.0.0",
+  "description": "Una herramienta para analizar y mejorar nombres de variables y funciones en proyectos JavaScript/TypeScript",
+  "main": "namer-suggester.mjs",
+  "type": "module",
+  "bin": {
+    "namer-suggester": "./namer-suggester.mjs"
+  },
+  "engines": {
+    "node": ">=14.16.0"
+  },
+  "scripts": {
+    "start": "node namer-suggester.mjs",
+    "setup": "node setup-namer-suggester.mjs",
+    "install-global": "npm install -g ."
+  },
+  "keywords": [
+    "javascript",
+    "typescript",
+    "naming",
+    "refactoring",
+    "code-quality",
+    "react",
+    "nextjs",
+    "monorepo"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/parser": "^7.22.0",
+    "@babel/traverse": "^7.22.0",
+    "inquirer": "^9.2.0",
+    "node-fetch": "^3.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/namer-suggester.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/namer-suggester/issues"
+  }
+}
