@@ -1,5 +1,7 @@
 # Namer Suggester
 
+[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/juandape/name-suggester)
+
 Una herramienta para analizar y sugerir mejores nombres para variables, funciones y otros identificadores en tu código JavaScript/TypeScript.
 
 ## Características
@@ -29,21 +31,67 @@ Una herramienta para analizar y sugerir mejores nombres para variables, funcione
 
 ## Instalación
 
-### Con npm
+### Instalación desde GitHub
+
+La forma más sencilla de instalar la herramienta es directamente desde GitHub:
 
 ```bash
-# Asegúrate de tener todas las dependencias necesarias
-npm install @babel/parser @babel/traverse inquirer node-fetch
+# Con npm
+npm install -g github:juandape/name-suggester
+
+# Con Yarn
+yarn global add github:juandape/name-suggester
 ```
 
-### Con Yarn
+También puedes instalarlo como dependencia de desarrollo en tu proyecto:
 
 ```bash
-# Instalar dependencias con Yarn
+# Con npm
+npm install --save-dev github:juandape/name-suggester
+
+# Con Yarn
+yarn add --dev github:juandape/name-suggester
+```
+
+Para una versión específica o rama:
+
+```bash
+# Instalar desde una rama específica
+npm install -g github:juandape/name-suggester#desarrollo
+
+# Instalar una versión específica por tag
+npm install -g github:juandape/name-suggester#v1.0.0
+```
+
+### Instalación local (clonando el repositorio)
+
+Si prefieres clonar el repositorio y luego instalar:
+
+```bash
+# Clonar el repositorio
+git clone https://github.com/juandape/name-suggester.git
+cd name-suggester
+
+# Instalar dependencias con npm
+npm install
+
+# O instalar dependencias con Yarn
+yarn
+```
+
+### Instalación manual de dependencias
+
+Si solo necesitas instalar las dependencias necesarias en tu proyecto existente:
+
+```bash
+# Con npm
+npm install @babel/parser @babel/traverse inquirer node-fetch
+
+# Con Yarn
 yarn add @babel/parser @babel/traverse inquirer node-fetch
 ```
 
-### Instalación global
+### Instalación global (después de clonar)
 
 Para instalar la herramienta de forma global y utilizarla en cualquier proyecto:
 
@@ -57,14 +105,34 @@ yarn global add file:.
 
 ## Uso
 
+### Ejecución directa (sin instalación)
+
+Puedes ejecutar la herramienta directamente desde GitHub sin instalación previa:
+
 ```bash
-# Ejecuta el script con Node
+# Usando npx
+npx github:juandape/name-suggester
+
+# O con Yarn
+yarn dlx github:juandape/name-suggester
+```
+
+### Ejecución después de instalar
+
+```bash
+# Si lo ejecutas desde el repositorio clonado
 node namer-suggester.mjs
 
-# O si lo has instalado con npm
+# Si lo has instalado globalmente con npm
+namer-suggester
+
+# Si lo has instalado como dependencia local con npm
 npx namer-suggester
 
-# O si lo has instalado con Yarn
+# Si lo has instalado con Yarn globalmente
+namer-suggester
+
+# Si lo has instalado con Yarn localmente
 yarn namer-suggester
 ```
 
@@ -168,3 +236,35 @@ Si deseas extender o mejorar el script, puedes modificar:
 - La función `suggestNames()` para agregar nuevas reglas de sugerencias
 - La función `analyzeFile()` para detectar más tipos de identificadores
 - La función `extractFileContext()` para mejorar el análisis de contexto
+
+## Contribuciones y Actualizaciones
+
+### Mantener actualizado
+
+Si instalaste la herramienta desde GitHub, puedes actualizarla a la última versión:
+
+```bash
+# Si está instalada globalmente con npm
+npm update -g github:juandape/name-suggester
+
+# Si está instalada globalmente con Yarn
+yarn global upgrade github:juandape/name-suggester
+
+# Si clonaste el repositorio
+git pull origin main
+npm install  # o yarn
+```
+
+### Contribuir al proyecto
+
+¿Tienes ideas para mejorar la herramienta? ¡Las contribuciones son bienvenidas!
+
+1. Haz un fork del repositorio: [github.com/juandape/name-suggester](https://github.com/juandape/name-suggester)
+2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
+3. Realiza tus cambios y haz commits (`git commit -am 'Agrega nueva funcionalidad'`)
+4. Sube tus cambios a GitHub (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request desde tu fork a [juandape/name-suggester](https://github.com/juandape/name-suggester)
+
+### Reportar problemas
+
+Si encuentras algún error o tienes alguna sugerencia, por favor [abre un issue](https://github.com/juandape/name-suggester/issues) en el repositorio de GitHub.
