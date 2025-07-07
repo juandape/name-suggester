@@ -107,15 +107,14 @@ yarn global add file:.
 
 ### Ejecución directa (sin instalación)
 
-Puedes ejecutar la herramienta directamente desde GitHub sin instalación previa:
+Puedes ejecutar la herramienta directamente desde GitHub sin instalación previa **solo con npx**:
 
 ```bash
-# Usando npx
+# Usando npx (recomendado para ejecución directa)
 npx github:juandape/name-suggester
-
-# O con Yarn
-yarn dlx github:juandape/name-suggester
 ```
+
+> ⚠️ **Nota:** `yarn dlx` no soporta ejecutar paquetes directamente desde GitHub (formato `github:usuario/repo`). Si usas Yarn, instala globalmente o como dependencia y ejecuta con `yarn namer-suggester`.
 
 ### Ejecución después de instalar
 
