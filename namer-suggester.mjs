@@ -323,14 +323,17 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
   const aiConfig = loadAIConfig();
   const provider = aiConfig.provider || 'rules';
 
+  // Mostrar configuración del proveedor seleccionado
+  console.log(`🔧 Proveedor de IA configurado: ${provider}`);
+
   // Construir prompt común para todos los servicios
   const promptBase = `Eres un experto en nomenclatura de código para ${
-    fileContext.context
+    fileContext.context || 'JavaScript/TypeScript'
   }.
   Dame 3 a 5 nombres mejores para un${
     type === 'variable' ? 'a' : ''
   } ${type} llamado "${original}"
-  en un archivo de tipo ${fileContext.context}.
+  en un archivo de tipo ${fileContext.context || 'JavaScript/TypeScript'}.
   Contexto adicional: ${context || 'No disponible'}.
   Importaciones del archivo: ${
     fileContext.imports?.join(', ') || 'No disponibles'
@@ -341,9 +344,16 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
     // 1. Intentar usar GitHub Copilot CLI (primera opción, más integrada)
     if (provider === 'copilot' || provider === 'auto') {
       try {
-        const prompt = `Sugiere 3 nombres mejores para ${type} llamado "${original}" en un archivo ${fileContext.context}. Contexto: ${context}. Responde solo con los nombres separados por comas, sin explicaciones adicionales.`;
+        console.log(
+          '🔄 Intentando obtener sugerencias de GitHub Copilot CLI...'
+        );
+        const prompt = `Sugiere 3 nombres mejores para ${type} llamado "${original}" en un archivo ${
+          fileContext.context || 'JavaScript/TypeScript'
+        }. Contexto: ${
+          context || 'No disponible'
+        }. Responde solo con los nombres separados por comas, sin explicaciones adicionales.`;
         const result = execSync(`echo "${prompt}" | gh copilot suggest`, {
-          timeout: 5000,
+          timeout: 8000, // Tiempo de espera aumentado
         });
         const suggestions = result
           .toString()
@@ -358,10 +368,18 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
           console.log('✨ Sugerencias obtenidas de GitHub Copilot CLI');
           return validSuggestions;
         }
+        console.log('⚠️ GitHub Copilot CLI no devolvió sugerencias válidas');
       } catch (error) {
         // Silenciosamente pasamos al siguiente proveedor
         if (provider === 'copilot') {
-          console.log('Info: GitHub Copilot CLI no disponible o falló.');
+          console.log(
+            '⚠️ GitHub Copilot CLI no disponible o falló:',
+            error.message
+          );
+        } else {
+          console.log(
+            '⚠️ GitHub Copilot CLI no disponible, probando otras opciones...'
+          );
         }
       }
     }
@@ -373,7 +391,9 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
           aiConfig.openai?.apiKey || process.env.OPENAI_API_KEY;
 
         if (openaiApiKey) {
+          console.log('🔄 Intentando obtener sugerencias de OpenAI...');
           const model = aiConfig.openai?.model || 'gpt-3.5-turbo';
+          console.log(`📊 Usando modelo: ${model}`);
 
           const response = await fetch(
             'https://api.openai.com/v1/chat/completions',
@@ -396,10 +416,25 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
                 temperature: 0.7,
                 max_tokens: 50,
               }),
+              timeout: 10000, // 10 segundos de timeout
             }
           );
 
+          if (!response.ok) {
+            throw new Error(
+              `API error: ${response.status} ${response.statusText}`
+            );
+          }
+
           const data = await response.json();
+
+          if (data.error) {
+            throw new Error(
+              `OpenAI error: ${
+                data.error.message || JSON.stringify(data.error)
+              }`
+            );
+          }
 
           if (data.choices && data.choices[0] && data.choices[0].message) {
             const suggestions = data.choices[0].message.content
@@ -413,10 +448,19 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
               console.log('✨ Sugerencias obtenidas de OpenAI');
               return suggestions;
             }
+            console.log('⚠️ OpenAI no devolvió sugerencias válidas');
           }
+        } else if (provider === 'openai') {
+          console.log(
+            '⚠️ Se requiere API key de OpenAI. Configúrala con OPENAI_API_KEY o en .ai-config.json'
+          );
         }
       } catch (error) {
-        console.log('Info: OpenAI no disponible o falló:', error.message);
+        if (provider === 'openai') {
+          console.log('❌ Error con OpenAI:', error.message);
+        } else {
+          console.log('⚠️ OpenAI no disponible, probando otras opciones...');
+        }
       }
     }
 
@@ -920,21 +964,16 @@ function analyzeFile(filePath) {
 
 // Función para registrar sugerencias en un archivo log
 function logSuggestions(filePath, item, suggestions, selected, fileContext) {
-  // Usamos una ruta absoluta para asegurar que funcione en cualquier entorno
-  const logFile = path.resolve(process.cwd(), 'namer-suggester.log');
+  // Definimos posibles ubicaciones para el archivo de log
+  const possibleLogPaths = [
+    path.resolve(process.cwd(), 'namer-suggester.log'),
+    path.resolve(__dirname, 'namer-suggester.log'),
+    path.resolve(os.homedir(), 'namer-suggester.log'),
+  ];
+
   const timestamp = new Date().toISOString();
 
-  try {
-    // Crear el encabezado si el archivo no existe
-    if (!fs.existsSync(logFile)) {
-      fs.writeFileSync(
-        logFile,
-        `# Registro de Sugerencias de Nombres\n\n`,
-        'utf-8'
-      );
-    }
-
-    const entry = `
+  const entry = `
 ## ${timestamp} - ${path.basename(filePath)}
 - **Archivo**: \`${filePath}\`
 - **Tipo**: ${item.type}
@@ -945,19 +984,43 @@ function logSuggestions(filePath, item, suggestions, selected, fileContext) {
 - **Seleccionado**: \`${selected}\`
 `;
 
-    // Añadir al archivo existente en lugar de sobrescribir
-    fs.appendFileSync(logFile, entry, 'utf-8');
-    console.log(`💾 Registro guardado en: ${logFile}`);
-  } catch (error) {
-    console.error(`⚠️ Error al guardar en el log: ${error.message}`);
-    // Intenta crear el log en el directorio del script como alternativa
+  let logSuccess = false;
+
+  // Intentar escribir en cada una de las posibles ubicaciones hasta que una funcione
+  for (const logFile of possibleLogPaths) {
     try {
-      const fallbackLogFile = path.join(__dirname, 'namer-suggester.log');
-      fs.appendFileSync(fallbackLogFile, entry, 'utf-8');
-      console.log(`💾 Registro guardado en: ${fallbackLogFile}`);
-    } catch (fallbackError) {
-      console.error(`❌ No se pudo guardar el log: ${fallbackError.message}`);
+      // Crear el encabezado si el archivo no existe
+      if (!fs.existsSync(logFile)) {
+        try {
+          fs.writeFileSync(
+            logFile,
+            `# Registro de Sugerencias de Nombres\n\n`,
+            'utf-8'
+          );
+        } catch (initError) {
+          // Si no se puede crear el archivo, intentar con la siguiente ubicación
+          continue;
+        }
+      }
+
+      // Añadir al archivo existente en lugar de sobrescribir
+      fs.appendFileSync(logFile, entry, 'utf-8');
+      console.log(`💾 Registro guardado en: ${logFile}`);
+      logSuccess = true;
+      break; // Si se logra escribir, salir del bucle
+    } catch (error) {
+      // Continuar con el siguiente intento
     }
+  }
+
+  if (!logSuccess) {
+    console.error(
+      `❌ No se pudo guardar el registro en ninguna ubicación. Verificar permisos.`
+    );
+    // Como último recurso, mostrar una versión simplificada en consola
+    console.log(
+      `📝 Resumen de sugerencias para "${item.name}": ${suggestions.join(', ')}`
+    );
   }
 }
 
@@ -965,6 +1028,12 @@ async function showSuggestionsFor(results, fileContext, filePath) {
   const logEntries = [];
 
   for (const item of results) {
+    console.log(
+      `\n🔍 Analizando ${item.type}: "${item.name}" (línea ${
+        item.line || 'N/A'
+      })`
+    );
+
     // Obtener sugerencias basadas en las reglas y contexto
     const basicSuggestions = suggestNames(
       item.name,
@@ -973,22 +1042,106 @@ async function showSuggestionsFor(results, fileContext, filePath) {
       fileContext
     );
 
-    // Intentar obtener sugerencias adicionales de Copilot
-    const copilotSuggestions = await getCopilotSuggestions(
-      item.name,
-      item.type,
-      item.context,
-      fileContext
+    console.log(
+      `⚙️ Reglas predefinidas generaron ${basicSuggestions.length} sugerencias`
     );
+
+    // Intentar obtener sugerencias adicionales de Copilot u otros proveedores de IA
+    let copilotSuggestions = [];
+    let aiError = null;
+    try {
+      copilotSuggestions = await getCopilotSuggestions(
+        item.name,
+        item.type,
+        item.context,
+        fileContext
+      );
+      console.log(
+        `🤖 IA generó ${copilotSuggestions.length} sugerencias adicionales`
+      );
+    } catch (error) {
+      aiError = error;
+      console.error(`❌ Error al obtener sugerencias de IA: ${error.message}`);
+    }
 
     // Combinar sugerencias eliminando duplicados
     const allSuggestions = [
       ...new Set([...basicSuggestions, ...copilotSuggestions]),
     ];
 
+    // Agregar algunas sugerencias mínimas si no se han encontrado
     if (allSuggestions.length === 0) {
-      console.log(`ℹ️  No hay sugerencias para ${item.type} "${item.name}"\n`);
-      continue;
+      console.log(
+        `⚠️ No se encontraron sugerencias para ${item.type} "${item.name}", generando sugerencias básicas...`
+      );
+
+      // Añadir sugerencias genéricas basadas en el tipo
+      if (
+        item.type === 'function' ||
+        item.type === 'method' ||
+        item.type === 'arrow-function'
+      ) {
+        // Funciones y métodos
+        allSuggestions.push(
+          `process${item.name.charAt(0).toUpperCase()}${item.name.slice(1)}`
+        );
+        allSuggestions.push(
+          `handle${item.name.charAt(0).toUpperCase()}${item.name.slice(1)}`
+        );
+
+        // Si parece ser un manejador de eventos
+        if (
+          item.name.includes('click') ||
+          item.name.includes('change') ||
+          item.name.includes('submit')
+        ) {
+          allSuggestions.push(
+            `on${item.name.charAt(0).toUpperCase()}${item.name.slice(1)}`
+          );
+          allSuggestions.push(
+            `handle${item.name.charAt(0).toUpperCase()}${item.name.slice(1)}`
+          );
+        }
+
+        // Si parece ser un getter
+        if (item.name.startsWith('get')) {
+          allSuggestions.push(item.name.replace(/^get/, 'fetch'));
+          allSuggestions.push(item.name.replace(/^get/, 'retrieve'));
+        }
+      } else if (item.type === 'variable' || item.type === 'property') {
+        // Variables y propiedades
+        allSuggestions.push(`${item.name}Value`);
+        allSuggestions.push(`${item.name}Data`);
+
+        // Si parece ser un estado o flag
+        if (item.name.includes('is') || item.name.includes('has')) {
+          const baseName = item.name.replace(/^(is|has)/, '');
+          if (baseName !== item.name) {
+            allSuggestions.push(`is${baseName}`);
+            allSuggestions.push(`has${baseName}`);
+          }
+        }
+
+        // Si es muy corta (probablemente poco descriptiva)
+        if (item.name.length <= 3) {
+          allSuggestions.push(`${item.name}Item`);
+          allSuggestions.push(`${item.name}Element`);
+        }
+      }
+
+      // Siempre asegurar que hay al menos una sugerencia
+      if (allSuggestions.length === 0) {
+        // Como último recurso, agregar alguna variante del nombre original
+        allSuggestions.push(
+          `improved${item.name.charAt(0).toUpperCase()}${item.name.slice(1)}`
+        );
+        allSuggestions.push(
+          `better${item.name.charAt(0).toUpperCase()}${item.name.slice(1)}`
+        );
+        console.log(
+          `🔄 Generadas sugerencias de último recurso para "${item.name}"`
+        );
+      }
     }
 
     // Destacar si hay sugerencias de Copilot
@@ -1301,32 +1454,75 @@ async function createAIConfigFile() {
 }
 
 async function main() {
-  console.log('🔍 Namer Suggester - Analizador de nombres');
+  console.log('\n🔍 Namer Suggester - Analizador de nombres');
   console.log('---------------------------------------');
   console.log(
     'Este script analiza tus archivos JavaScript/TypeScript y sugiere mejores nombres para funciones y variables.\n'
   );
 
+  // Verificar dependencias críticas
+  try {
+    require('@babel/parser');
+    require('@babel/traverse');
+  } catch (depError) {
+    console.error('❌ Error: Faltan dependencias necesarias.');
+    console.log('🔄 Ejecutando instalador de dependencias...');
+
+    try {
+      // Intenta instalar las dependencias críticas
+      execSync(
+        'npm install @babel/parser @babel/traverse inquirer node-fetch',
+        {
+          stdio: 'inherit',
+        }
+      );
+      console.log('✅ Dependencias instaladas correctamente.\n');
+    } catch (installError) {
+      console.error('❌ Error instalando dependencias:', installError.message);
+      console.log(
+        '\n⚠️ Por favor, instala manualmente las dependencias necesarias:'
+      );
+      console.log(
+        'npm install @babel/parser @babel/traverse inquirer node-fetch'
+      );
+      process.exit(1);
+    }
+  }
+
   // Detectar tipo de proyecto
-  const { projectType, framework } = detectProjectType();
-  console.log(`🧰 Proyecto detectado: ${projectType.toUpperCase()}`);
-  if (framework !== 'unknown') {
-    console.log(`🛠️ Framework: ${framework.toUpperCase()}`);
+  let projectType = 'javascript';
+  let framework = 'unknown';
+  try {
+    const projectInfo = detectProjectType();
+    projectType = projectInfo.projectType;
+    framework = projectInfo.framework;
+    console.log(`🧰 Proyecto detectado: ${projectType.toUpperCase()}`);
+    if (framework !== 'unknown') {
+      console.log(`🛠️ Framework: ${framework.toUpperCase()}`);
+    }
+  } catch (projectError) {
+    console.log(
+      `⚠️ No se pudo detectar el tipo de proyecto: ${projectError.message}`
+    );
+    console.log('Continuando con análisis genérico...');
   }
 
   // Cargar configuración de IA
   let aiConfig;
   try {
     aiConfig = loadAIConfig();
-    console.log(
-      `🤖 Motor de sugerencias: ${
-        aiConfig.provider === 'auto'
-          ? 'Automático'
-          : aiConfig.provider === 'rules'
-          ? 'Reglas predefinidas'
-          : aiConfig.provider.toUpperCase()
-      }\n`
-    );
+
+    // Mostrar de manera más clara el proveedor de IA
+    let providerDescription;
+    if (aiConfig.provider === 'auto') {
+      providerDescription = 'Automático (prueba todos los disponibles)';
+    } else if (aiConfig.provider === 'rules') {
+      providerDescription = 'Reglas predefinidas (sin IA)';
+    } else {
+      providerDescription = aiConfig.provider.toUpperCase();
+    }
+
+    console.log(`🤖 Motor de sugerencias: ${providerDescription}\n`);
   } catch (error) {
     console.log(
       '⚠️ No se pudo cargar configuración de IA. Usando reglas predefinidas.\n'
@@ -1546,5 +1742,17 @@ function showHelp() {
 
 // Iniciar el programa
 main().catch((error) => {
-  console.error('❌ Error:', error);
+  console.error('❌ Error fatal en la aplicación:', error.message);
+  console.error('Si este problema persiste, por favor reporta el error en:');
+  console.error('https://github.com/juandape/name-suggester/issues');
+
+  // Si hay una traza de error, mostrarla en modo depuración
+  if (process.env.DEBUG) {
+    console.error('\nDetalles del error (DEBUG):', error);
+  } else {
+    console.log('\nPara ver más detalles del error, ejecuta con DEBUG=true');
+    console.log('DEBUG=true namer-suggester');
+  }
+
+  process.exit(1);
 });

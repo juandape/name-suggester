@@ -38,14 +38,34 @@ Una herramienta para analizar y sugerir mejores nombres para variables, funcione
 La forma más sencilla de instalar la herramienta es directamente desde GitHub:
 
 ```bash
-# Con npm
+# Con npm (instalación global)
 npm install -g name-suggester@https://github.com/juandape/name-suggester.git
 
-# Con Yarn
-yarn add name-suggester@https://github.com/juandape/name-suggester.git
+# Con npm (instalación como dependencia de desarrollo)
+npm install --save-dev name-suggester@https://github.com/juandape/name-suggester.git
+
+# Con Yarn moderno (dependencia de desarrollo)
+yarn add --dev name-suggester@https://github.com/juandape/name-suggester.git
+
+# Con pnpm (instalación global)
+pnpm add -g name-suggester@https://github.com/juandape/name-suggester.git
 ```
 
-También puedes instalarlo como dependencia de desarrollo en tu proyecto:
+### Ejecución directa sin instalación
+
+También puedes ejecutar la herramienta sin instalarla usando npx:
+
+```bash
+# Con npx
+npx name-suggester@https://github.com/juandape/name-suggester.git
+
+# O con la URL del repositorio
+npx github:juandape/name-suggester
+```
+
+> **Nota**: La ejecución directa con Yarn DLX no funciona con repositorios GitHub, usa `yarn add` y luego `yarn namer-suggester` en su lugar.
+
+### Instalación manual de dependencias (solo si hay problemas con la instalación automática):
 
 ```bash
 # Con npm
