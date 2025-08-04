@@ -1,19 +1,33 @@
 {
   "name": "namer-suggester",
-  "version": "1.2.0",
-  "description": "Una herramienta para analizar y mejorar nombres de variables y funciones en proyectos JavaScript/TypeScript",
-  "main": "namer-suggester.mjs",
+  "version": "1.0.1",
+  "description": "A tool to analyze and improve variable and function names in JavaScript/TypeScript projects",
+  "main": "dist/cjs/index.js",
   "type": "module",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/types/index.d.ts"
+    }
+  },
   "bin": {
-    "namer-suggester": "./namer-suggester.mjs"
+    "namer-suggester": "./dist/esm/bin/namer-suggester.js"
   },
-  "engines": {
-    "node": ">=14.16.0"
-  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
   "scripts": {
-    "start": "node namer-suggester.mjs",
-    "setup": "node setup-namer-suggester.mjs",
-    "install-global": "npm install -g ."
+    "clean": "rm -rf dist",
+    "build:esm": "tsc --project tsconfig.json --module ESNext --outDir dist/esm --declaration --declarationDir dist/types --emitDeclarationOnly false",
+    "build:cjs": "tsc --project tsconfig.json --module CommonJS --outDir dist/cjs --declaration false",
+    "build:types": "tsc --project tsconfig.json --emitDeclarationOnly --declaration --declarationDir dist/types",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types"
   },
   "keywords": [
     "javascript",
@@ -25,7 +39,7 @@
     "nextjs",
     "monorepo"
   ],
-  "author": "",
+  "author": "Juan David Peña <juandape@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "@babel/parser": "^7.22.0",
@@ -39,5 +53,10 @@
   },
   "bugs": {
     "url": "https://github.com/juandape/name-suggester/issues"
+  },
+  "packageManager": "yarn@4.9.2+sha512.1fc009bc09d13cfd0e19efa44cbfc2b9cf6ca61482725eb35bbc5e257e093ebf4130db6dfe15d604ff4b79efd8e1e8e99b25fa7d0a6197c9f9826358d4d65c3c",
+  "devDependencies": {
+    "@types/node": "^24.2.0",
+    "typescript": "^5.9.2"
   }
 }

@@ -14,73 +14,11 @@ import fetch from 'node-fetch'; // Para realizar solicitudes HTTP a APIs de IA
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Clase mejorada para mostrar progreso en la consola
-class ProgressBar {
-  constructor(total, prefix = 'Progreso:', suffix = 'Completado', length = 30) {
-    this.total = total;
-    this.current = 0;
-    this.prefix = prefix;
-    this.suffix = suffix;
-    this.length = length;
-    this.lastRender = 0; // Para evitar renderizados excesivos
-    this.isActive = false; // Para controlar si hay una barra activa
-    this.start();
-  }
-
-  start() {
-    this.startTime = Date.now();
-    this.isActive = true;
-    this.update(0);
-  }
-
-  update(current) {
-    // Solo actualizar la UI cada 100ms para evitar parpadeos
-    const now = Date.now();
-    if (now - this.lastRender < 100 && current !== this.total && current !== 0)
-      return;
-
-    this.lastRender = now;
-    this.current = current;
-
-    // Limpiar línea anterior para evitar múltiples barras
-    process.stdout.write('\x1b[2K'); // Borrar la línea completa
-
-    const percent = (current / this.total) * 100;
-    const filledLength = Math.round((this.length * current) / this.total);
-
-    // Usar un solo carácter para una visualización más consistente
-    const bar =
-      '■'.repeat(filledLength) + '□'.repeat(this.length - filledLength);
-
-    // Calcular tiempo restante estimado
-    const elapsedTime = now - this.startTime;
-    const estimatedTotal =
-      current > 0 ? (elapsedTime * this.total) / current : 0;
-    const remainingTime = Math.max(0, estimatedTotal - elapsedTime);
-    const timeStr =
-      remainingTime > 0 && current < this.total
-        ? ` (${Math.round(remainingTime / 1000)}s restantes)`
-        : '';
-
-    process.stdout.write(
-      `\r${this.prefix} |${bar}| ${Math.floor(percent)}% ${
-        this.suffix
-      } ${current}/${this.total}${timeStr}`
-    );
-
-    if (current === this.total) {
-      process.stdout.write('\n');
-      this.isActive = false;
-    }
-  }
-
-  // Método para forzar la finalización de la barra
-  complete() {
-    if (this.isActive) {
-      this.update(this.total);
-    }
-  }
-}
+import {
+  ProgressBar,
+  FileContext,
+  AnalyzeItem,
+} from './types/namerSuggester.type.js';
 
 function walk(
   dir,
@@ -117,7 +55,19 @@ function walk(
 }
 
 // Función para generar sugerencias de nombres basadas en buenas prácticas
-function suggestNames(original, type = '', itemContext = '', fileContext = {}) {
+/**
+ * Genera sugerencias de nombres basadas en buenas prácticas
+ * @param original Nombre original
+ * @param type Tipo de identificador
+ * @param itemContext Contexto adicional
+ * @param fileContext Contexto de archivo
+ */
+function suggestNames(
+  original: string,
+  type: string = '',
+  itemContext: string = '',
+  fileContext: Partial<FileContext> = {}
+): string[] {
   const suggestions = [];
 
   // Normalizar el tipo para facilitar el manejo
@@ -143,13 +93,13 @@ function suggestNames(original, type = '', itemContext = '', fileContext = {}) {
     }
 
     // Funciones que parecen accesores (getters)
-    if (/^get/.test(original) && original.length > 5) {
+    if (original.startsWith('get') && original.length > 5) {
       suggestions.push(original.replace(/^get/, 'retrieve'));
       suggestions.push(original.replace(/^get/, 'fetch'));
     }
 
     // Funciones que parecen mutadores (setters)
-    if (/^set/.test(original) && original.length > 5) {
+    if (original.startsWith('set') && original.length > 5) {
       suggestions.push(original.replace(/^set/, 'update'));
       suggestions.push(original.replace(/^set/, 'modify'));
     }
@@ -244,7 +194,7 @@ function suggestNames(original, type = '', itemContext = '', fileContext = {}) {
   ) {
     if (isReactComponent) {
       // Componentes React
-      if (!original.match(/^[A-Z]/)) {
+      if (!/^[A-Z]/.exec(original)) {
         suggestions.push(original.charAt(0).toUpperCase() + original.slice(1));
       }
       if (!original.endsWith('Component') && original.length > 4) {
@@ -318,7 +268,12 @@ function suggestNames(original, type = '', itemContext = '', fileContext = {}) {
 }
 
 // Función para obtener sugerencias usando IA
-async function getCopilotSuggestions(original, type, context, fileContext) {
+async function getCopilotSuggestions(
+  original: string,
+  type: string,
+  context: string,
+  fileContext: Partial<FileContext>
+): Promise<string[]> {
   // Cargar configuración
   const aiConfig = loadAIConfig();
   const provider = aiConfig.provider || 'rules';
@@ -416,7 +371,7 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
                 temperature: 0.7,
                 max_tokens: 50,
               }),
-              timeout: 10000, // 10 segundos de timeout
+              // timeout no es parte de RequestInit estándar
             }
           );
 
@@ -428,22 +383,21 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
 
           const data = await response.json();
 
-          if (data.error) {
+          const d = data as any;
+          if (d.error) {
             throw new Error(
-              `OpenAI error: ${
-                data.error.message || JSON.stringify(data.error)
-              }`
+              `OpenAI error: ${d.error.message || JSON.stringify(d.error)}`
             );
           }
 
-          if (data.choices && data.choices[0] && data.choices[0].message) {
-            const suggestions = data.choices[0].message.content
+          if (d.choices?.[0]?.message) {
+            const suggestions = d.choices[0].message.content
               .split(',')
-              .map((s) => s.trim())
+              .map((s: string) => s.trim())
               .filter(
-                (s) => s && !s.includes(' ') && s !== original && s.length > 0
+                (s: string) =>
+                  s && !s.includes(' ') && s !== original && s.length > 0
               );
-
             if (suggestions.length > 0) {
               console.log('✨ Sugerencias obtenidas de OpenAI');
               return suggestions;
@@ -492,14 +446,15 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
 
           const data = await response.json();
 
-          if (data.content && data.content[0] && data.content[0].text) {
-            const suggestions = data.content[0].text
+          const d = data as any;
+          if (d.content?.[0]?.text) {
+            const suggestions = d.content[0].text
               .split(',')
-              .map((s) => s.trim())
+              .map((s: string) => s.trim())
               .filter(
-                (s) => s && !s.includes(' ') && s !== original && s.length > 0
+                (s: string) =>
+                  s && !s.includes(' ') && s !== original && s.length > 0
               );
-
             if (suggestions.length > 0) {
               console.log('✨ Sugerencias obtenidas de Anthropic Claude');
               return suggestions;
@@ -535,14 +490,15 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
 
         const data = await response.json();
 
-        if (data.response) {
-          const suggestions = data.response
+        const d = data as any;
+        if (d.response) {
+          const suggestions = d.response
             .split(',')
-            .map((s) => s.trim())
+            .map((s: string) => s.trim())
             .filter(
-              (s) => s && !s.includes(' ') && s !== original && s.length > 0
+              (s: string) =>
+                s && !s.includes(' ') && s !== original && s.length > 0
             );
-
           if (suggestions.length > 0) {
             console.log('✨ Sugerencias obtenidas de Ollama (modelo local)');
             return suggestions;
@@ -579,18 +535,15 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
 
           const data = await response.json();
 
-          if (
-            data.candidates &&
-            data.candidates[0] &&
-            data.candidates[0].content
-          ) {
-            const suggestions = data.candidates[0].content.parts[0].text
+          const d = data as any;
+          if (d.candidates?.[0]?.content) {
+            const suggestions = d.candidates[0].content.parts[0].text
               .split(',')
-              .map((s) => s.trim())
+              .map((s: string) => s.trim())
               .filter(
-                (s) => s && !s.includes(' ') && s !== original && s.length > 0
+                (s: string) =>
+                  s && !s.includes(' ') && s !== original && s.length > 0
               );
-
             if (suggestions.length > 0) {
               console.log('✨ Sugerencias obtenidas de Google Gemini');
               return suggestions;
@@ -616,7 +569,7 @@ async function getCopilotSuggestions(original, type, context, fileContext) {
   }
 }
 
-async function selectFileOrFolder(startDir = '.') {
+async function selectFileOrFolder(startDir = '.'): Promise<string> {
   const rootDirs = ['./apps', './packages', './src'];
   let currentDir = startDir;
 
@@ -754,7 +707,7 @@ async function selectFileOrFolder(startDir = '.') {
     }
 
     // Si seleccionamos un archivo, terminamos
-    if (!selectedItem || !selectedItem.isDir) {
+    if (!selectedItem?.isDir) {
       return selection;
     }
 
@@ -764,7 +717,7 @@ async function selectFileOrFolder(startDir = '.') {
 }
 
 // Función para buscar archivos por patrón
-async function searchFileByPattern() {
+async function searchFileByPattern(): Promise<string> {
   const { pattern } = await inquirer.prompt([
     {
       type: 'input',
@@ -805,7 +758,11 @@ async function searchFileByPattern() {
 }
 
 // Función auxiliar para buscar archivos por patrón
-function findFilesByPattern(dir, pattern, results) {
+function findFilesByPattern(
+  dir: string,
+  pattern: string,
+  results: string[]
+): void {
   const files = fs.readdirSync(dir);
   const regex = new RegExp(pattern.replace(/\*/g, '.*'));
 
@@ -821,9 +778,9 @@ function findFilesByPattern(dir, pattern, results) {
   }
 }
 
-function extractFileContext(code) {
+function extractFileContext(code: string): FileContext {
   // Extraer comentarios de cabecera y palabras clave para entender contexto
-  const headerComments = code.match(/^(\/\/.*|\/\*[\s\S]*?\*\/)\s*$/m) || [];
+  const headerComments = /^(\/\/.*|\/\*[\s\S]*?\*\/)\s*$/m.exec(code) || [];
   const importMatches = [
     ...code.matchAll(/import\s+.*?\s+from\s+['"](.+?)['"]/g),
   ];
@@ -857,7 +814,10 @@ function extractFileContext(code) {
   };
 }
 
-function analyzeFile(filePath) {
+function analyzeFile(filePath: string): {
+  results: AnalyzeItem[];
+  fileContext: FileContext;
+} {
   const code = fs.readFileSync(filePath, 'utf-8');
   const context = extractFileContext(code);
 
@@ -963,7 +923,13 @@ function analyzeFile(filePath) {
 }
 
 // Función para registrar sugerencias en un archivo log
-function logSuggestions(filePath, item, suggestions, selected, fileContext) {
+function logSuggestions(
+  filePath: string,
+  item: AnalyzeItem,
+  suggestions: string[],
+  selected: string,
+  fileContext: FileContext
+): void {
   // Definimos posibles ubicaciones para el archivo de log
   const possibleLogPaths = [
     path.resolve(process.cwd(), 'namer-suggester.log'),
@@ -1024,8 +990,12 @@ function logSuggestions(filePath, item, suggestions, selected, fileContext) {
   }
 }
 
-async function showSuggestionsFor(results, fileContext, filePath) {
-  const logEntries = [];
+async function showSuggestionsFor(
+  results: AnalyzeItem[],
+  fileContext: FileContext,
+  filePath: string
+): Promise<void> {
+  //
 
   for (const item of results) {
     console.log(
@@ -1048,7 +1018,7 @@ async function showSuggestionsFor(results, fileContext, filePath) {
 
     // Intentar obtener sugerencias adicionales de Copilot u otros proveedores de IA
     let copilotSuggestions = [];
-    let aiError = null;
+    //
     try {
       copilotSuggestions = await getCopilotSuggestions(
         item.name,
@@ -1060,7 +1030,6 @@ async function showSuggestionsFor(results, fileContext, filePath) {
         `🤖 IA generó ${copilotSuggestions.length} sugerencias adicionales`
       );
     } catch (error) {
-      aiError = error;
       console.error(`❌ Error al obtener sugerencias de IA: ${error.message}`);
     }
 
@@ -1178,11 +1147,15 @@ async function showSuggestionsFor(results, fileContext, filePath) {
     console.log(`✅ Nombre ${selectedLabel}: \`${newName}\`\n`);
   }
 
-  return logEntries;
+  //
 }
 
 // Función para mostrar estadísticas al final del análisis
-function showStats(totalFiles, totalItems, changedItems) {
+function showStats(
+  totalFiles: number,
+  totalItems: number,
+  changedItems: number
+): void {
   console.log('\n📊 Estadísticas del análisis:');
   console.log(`📂 Archivos analizados: ${totalFiles}`);
   console.log(`🔍 Identificadores encontrados: ${totalItems}`);
@@ -1191,7 +1164,7 @@ function showStats(totalFiles, totalItems, changedItems) {
 }
 
 // Función para detectar el tipo de proyecto
-function detectProjectType() {
+function detectProjectType(): { projectType: string; framework: string } {
   try {
     // Determinar el tipo de proyecto
     let projectType = 'javascript';
@@ -1251,7 +1224,7 @@ function detectProjectType() {
 }
 
 // Función para cargar configuración de IA
-function loadAIConfig() {
+function loadAIConfig(): any {
   try {
     // Buscar configuración en varios lugares comunes
     const possibleConfigPaths = [
@@ -1293,7 +1266,7 @@ function loadAIConfig() {
 }
 
 // Función para crear configuración de IA
-async function createAIConfigFile() {
+async function createAIConfigFile(): Promise<any> {
   try {
     // Determinar la ruta donde se guardará la configuración
     const configPaths = [
@@ -1345,15 +1318,15 @@ async function createAIConfigFile() {
     ]);
 
     // Configuración base
-    const config = {
+    const config: any = {
       provider,
-      openai: { model: 'gpt-3.5-turbo' },
-      anthropic: { model: 'claude-instant-1' },
+      openai: { apiKey: '', model: 'gpt-3.5-turbo' },
+      anthropic: { apiKey: '', model: 'claude-instant-1' },
       ollama: {
         endpoint: 'http://localhost:11434/api/generate',
         model: 'llama2',
       },
-      gemini: { model: 'gemini-pro' },
+      gemini: { apiKey: '', model: 'gemini-pro' },
     };
 
     // Si se seleccionó un proveedor específico (excepto 'auto' y 'rules'), pedir más configuración
@@ -1453,7 +1426,7 @@ async function createAIConfigFile() {
   }
 }
 
-async function main() {
+async function main(): Promise<void> {
   console.log('\n🔍 Namer Suggester - Analizador de nombres');
   console.log('---------------------------------------');
   console.log(
@@ -1467,9 +1440,7 @@ async function main() {
   } catch (depError) {
     console.error('❌ Error: Faltan dependencias necesarias.');
     console.log('🔄 Ejecutando instalador de dependencias...');
-
     try {
-      // Intenta instalar las dependencias críticas
       execSync(
         'npm install @babel/parser @babel/traverse inquirer node-fetch',
         {
@@ -1527,7 +1498,7 @@ async function main() {
     console.log(
       '⚠️ No se pudo cargar configuración de IA. Usando reglas predefinidas.\n'
     );
-    aiConfig = { provider: 'rules' };
+    // aiConfig = { provider: 'rules' };
   }
 
   // Menú principal
@@ -1693,7 +1664,7 @@ async function main() {
 }
 
 // Función para mostrar ayuda
-function showHelp() {
+function showHelp(): void {
   console.log('\n📚 Ayuda de Namer Suggester');
   console.log('=========================');
   console.log(
