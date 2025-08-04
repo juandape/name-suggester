@@ -1,250 +1,80 @@
 # Namer Suggester
 
-[![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/juandape/name-suggester)
-![Node](https://img.shields.io/badge/node-%3E%3D14.0.0-green)
-![Licencia](https://img.shields.io/badge/licencia-MIT-orange)
+[![npm version](https://badge.fury.io/js/namer-suggester.svg)](https://badge.fury.io/js/namer-suggester)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-Una herramienta para analizar y sugerir mejores nombres para variables, funciones y otros identificadores en tu código JavaScript/TypeScript.
+A powerful tool to analyze and improve variable and function names in JavaScript/TypeScript projects using AI-powered suggestions and predefined naming rules.
 
-## Características
+## 🚀 Features
 
-- 🔍 Navega por la estructura de carpetas del proyecto o busca archivos por patrón
-- 🧠 Analiza funciones, variables, métodos de clase, propiedades y más
-- 💡 Genera sugerencias de nombres basadas en el contexto y buenas prácticas
-- 🤖 Integración con múltiples proveedores de IA (GitHub Copilot, OpenAI, Claude, Ollama, Gemini)
-- 🔄 Sistema de fallback automático entre proveedores de IA
-- ⚙️ Configuración flexible de proveedores de IA según preferencias
-- 📝 Registra todas las sugerencias en un archivo log para referencia futura
+- 🧠 **Smart Analysis**: Analyzes code context to suggest more descriptive names
+- 🤖 **AI Integration**: Support for multiple AI providers (OpenAI, Anthropic, Google Gemini, Ollama, GitHub Copilot)
+- 📋 **Predefined Rules**: Rule-based system following naming best practices
+- ⚛️ **React Support**: Specific suggestions for React components, hooks, and events
+- 🧪 **Context Detection**: Recognizes different file types (testing, API, components, etc.)
+- 📊 **Detailed Statistics**: Complete analysis reports
+- 🎯 **Easy to Use**: Interactive and user-friendly CLI interface
+- 🏗️ **Clean Architecture**: Built with SOLID principles and clean code practices
 
-## Requisitos
+## 📦 Installation
 
-- Node.js >= 14.0.0
-- Dependencias principales:
-  - @babel/parser
-  - @babel/traverse
-  - inquirer
-  - node-fetch (para comunicación con APIs de IA)
-- Opcionales (según el proveedor de IA elegido):
-  - GitHub Copilot CLI
-  - API key de OpenAI
-  - API key de Anthropic Claude
-  - Ollama (corriendo localmente)
-  - API key de Google Gemini
-
-## Instalación
-
-### Instalación desde GitHub
-
-La forma más sencilla de instalar la herramienta es directamente desde GitHub:
+### Global Installation
 
 ```bash
-# Con npm (instalación global)
-npm install -g name-suggester@https://github.com/juandape/name-suggester.git
-
-# Con npm (instalación como dependencia de desarrollo)
-npm install --save-dev name-suggester@https://github.com/juandape/name-suggester.git
-
-# Con Yarn moderno (dependencia de desarrollo)
-yarn add --dev name-suggester@https://github.com/juandape/name-suggester.git
-
-# Con pnpm (instalación global)
-pnpm add -g name-suggester@https://github.com/juandape/name-suggester.git
+npm install -g namer-suggester
 ```
 
-### Ejecución directa sin instalación
-
-También puedes ejecutar la herramienta sin instalarla usando npx:
+### Project-specific Installation
 
 ```bash
-# Con npx
-npx name-suggester@https://github.com/juandape/name-suggester.git
-
-# O con la URL del repositorio
-npx github:juandape/name-suggester
+npm install --save-dev namer-suggester
 ```
 
-> **Nota**: La ejecución directa con Yarn DLX no funciona con repositorios GitHub, usa `yarn add` y luego `yarn namer-suggester` en su lugar.
+## 🎯 Usage
 
-### Instalación manual de dependencias (solo si hay problemas con la instalación automática):
-
-```bash
-# Con npm
-npm install --save-dev name-suggester@https://github.com/juandape/name-suggester.git
-
-# Con Yarn
-yarn add --dev name-suggester@https://github.com/juandape/name-suggester.git
-```
-
-Para una versión específica o rama:
+### Command Line
 
 ```bash
-# Instalar desde una rama específica
-npm install -g name-suggester@https://github.com/juandape/name-suggester.git#desarrollo
-
-# Instalar una versión específica por tag
-npm install -g name-suggester@https://github.com/juandape/name-suggester.git#v1.0.0
-```
-
-### Instalación local (clonando el repositorio)
-
-Si prefieres clonar el repositorio y luego instalar:
-
-```bash
-# Clonar el repositorio
-git clone https://github.com/juandape/name-suggester.git
-cd name-suggester
-
-# Instalar dependencias con npm
-npm install
-
-# O instalar dependencias con Yarn
-yarn
-```
-
-### Instalación manual de dependencias
-
-Si solo necesitas instalar las dependencias necesarias en tu proyecto existente:
-
-```bash
-# Con npm
-npm install @babel/parser @babel/traverse inquirer node-fetch
-
-# Con Yarn
-yarn add @babel/parser @babel/traverse inquirer node-fetch
-```
-
-### Instalación global (después de clonar)
-
-Para instalar la herramienta de forma global y utilizarla en cualquier proyecto:
-
-```bash
-# Con npm
-npm install -g .
-
-# Con Yarn
-yarn global add file:.
-```
-
-## Uso
-
-### Ejecución directa (sin instalación)
-
-Puedes ejecutar la herramienta directamente desde GitHub sin instalación previa **solo con npx**:
-
-```bash
-# Usando npx (recomendado para ejecución directa)
-npx name-suggester@https://github.com/juandape/name-suggester.git
-```
-
-> ⚠️ **Nota:** `yarn dlx` no soporta ejecutar paquetes directamente desde GitHub (formato `github:usuario/repo`). Si usas Yarn, instala globalmente o como dependencia y ejecuta con `yarn namer-suggester`.
-
-### Ejecución después de instalar
-
-```bash
-# Si lo ejecutas desde el repositorio clonado
-node namer-suggester.mjs
-
-# Si lo has instalado globalmente con npm
 namer-suggester
-
-# Si lo has instalado como dependencia local con npm
-npx namer-suggester
-
-# Si lo has instalado con Yarn globalmente
-namer-suggester
-
-# Si lo has instalado con Yarn localmente
-yarn namer-suggester
 ```
 
-### Navegación
+### Programmatic Usage
 
-1. Selecciona una carpeta raíz para comenzar (`apps`, `packages` o `src`)
-2. Navega por la estructura de carpetas o utiliza la búsqueda por patrón
-3. Selecciona un archivo individual o un directorio completo para analizar:
-   - Para analizar un archivo individual, selecciónalo de la lista
-   - Para analizar un directorio completo, usa la opción "✅ Seleccionar este directorio completo"
-   - Para volver atrás, usa la opción "⬅️ Volver al directorio anterior"
-   - Para volver al inicio, usa la opción "🏠 Volver al inicio"
+```typescript
+import { NamerSuggesterApp, CodeAnalyzer, SuggestionService } from 'namer-suggester';
 
-### Análisis y sugerencias
+// Use the complete application
+const app = new NamerSuggesterApp();
+await app.run();
 
-Para cada identificador (función, variable, etc.) encontrado, el script:
+// Or use individual components
+const result = CodeAnalyzer.analyzeFile('./src/example.ts');
 
-1. Muestra el tipo de identificador y su nombre original
-2. Genera sugerencias basadas en el contexto y buenas prácticas
-3. Intenta obtener sugerencias adicionales de GitHub Copilot (marcadas con ✨)
-4. Te permite elegir entre mantener el nombre original o cambiar a una de las sugerencias
-5. Registra todas las sugerencias en `namer-suggester.log` para referencia futura
-
-### Archivo de log
-
-Todas las sugerencias se registran en `namer-suggester.log` con el siguiente formato:
-
-```markdown
-## [timestamp] - [nombre_archivo]
-
-- **Archivo**: `ruta/al/archivo`
-- **Tipo**: function|variable|method|...
-- **Línea**: número de línea
-- **Nombre Original**: `nombreOriginal`
-- **Contexto**: react-component|api|testing|...
-- **Sugerencias**: `sugerencia1`, `sugerencia2`, ...
-- **Seleccionado**: `nombreSeleccionado`
+const suggestionService = new SuggestionService(config);
+const suggestions = await suggestionService.getSuggestions(
+  'data',
+  'variable',
+  '',
+  fileContext
+);
 ```
 
-### Compatibilidad
+## ⚙️ Configuration
 
-Namer Suggester es compatible con varios tipos de proyectos:
+### AI Configuration
 
-- ✅ Proyectos JavaScript/TypeScript independientes
-- ✅ Aplicaciones React, Next.js, Vue, Angular
-- ✅ Aplicaciones React Native
-- ✅ Monorepos (Turborepo, Nx, pnpm workspaces, etc.)
-- ✅ Proyectos Node.js
-
-## Integración con IA
-
-La herramienta ofrece integración con múltiples proveedores de IA para obtener sugerencias más inteligentes y contextuales:
-
-### Proveedores soportados
-
-- **GitHub Copilot CLI**: La opción preferida y más integrada
-- **OpenAI (GPT)**: Modelos GPT-3.5 Turbo y GPT-4
-- **Anthropic Claude**: Modelos Claude Instant y Claude 2/3
-- **Ollama**: Modelos locales (Llama2, CodeLlama, etc.)
-- **Google Gemini**: Modelos Gemini Pro
-
-### Configuración con GitHub Copilot CLI
-
-Para aprovechar las sugerencias de GitHub Copilot, puedes instalar el CLI:
-
-```bash
-# Instalar GitHub Copilot CLI con npm
-npm install -g @githubnext/github-copilot-cli
-
-# O con Yarn
-yarn global add @githubnext/github-copilot-cli
-
-# Autenticarse con GitHub Copilot
-github-copilot-cli auth
-```
-
-### Configuración de otros proveedores de IA
-
-Al ejecutar la herramienta, selecciona la opción "⚙️ Configurar proveedores de IA" en el menú principal para configurar interactivamente tu proveedor preferido.
-
-También puedes crear manualmente un archivo `.ai-config.json` en tu proyecto con la siguiente estructura:
+Create a `.ai-config.json` file in your project:
 
 ```json
 {
   "provider": "auto",
   "openai": {
-    "apiKey": "tu-api-key-aquí",
+    "apiKey": "your-api-key-here",
     "model": "gpt-3.5-turbo"
   },
   "anthropic": {
-    "apiKey": "tu-api-key-aquí",
+    "apiKey": "your-api-key-here",
     "model": "claude-instant-1"
   },
   "ollama": {
@@ -252,54 +82,190 @@ También puedes crear manualmente un archivo `.ai-config.json` en tu proyecto co
     "model": "llama2"
   },
   "gemini": {
-    "apiKey": "tu-api-key-aquí",
+    "apiKey": "your-api-key-here",
     "model": "gemini-pro"
   }
 }
 ```
 
-Si ningún proveedor de IA está disponible, la herramienta seguirá funcionando utilizando sus reglas predefinidas para generar sugerencias.
+### Supported Providers
 
-## Extensiones y mejoras
+- **auto**: Tries all available providers
+- **rules**: Only predefined rules (no AI)
+- **copilot**: GitHub Copilot CLI
+- **openai**: OpenAI GPT models
+- **anthropic**: Anthropic Claude
+- **ollama**: Local models with Ollama
+- **gemini**: Google Gemini
 
-Si deseas extender o mejorar el script, puedes modificar:
+## 🏗️ Architecture
 
-- La función `suggestNames()` para agregar nuevas reglas de sugerencias
-- La función `analyzeFile()` para detectar más tipos de identificadores
-- La función `extractFileContext()` para mejorar el análisis de contexto
+The project follows Clean Code and SOLID principles:
 
-## Contribuciones y Actualizaciones
-
-### Mantener actualizado
-
-Si instalaste la herramienta desde GitHub, puedes actualizarla a la última versión:
-
-```bash
-# Si está instalada globalmente con npm
-npm update -g name-suggester@https://github.com/juandape/name-suggester.git
-
-# Si está instalada globalmente con Yarn
-yarn upgrade name-suggester@https://github.com/juandape/name-suggester.git
-
-# Si clonaste el repositorio
-git pull origin main
-npm install  # o yarn
+```
+src/
+├── analyzers/          # Code analysis and context extraction
+├── cli/               # Command line interface
+├── config/            # Configuration management
+├── providers/         # AI providers
+├── services/          # Main business logic
+├── types/            # TypeScript type definitions
+├── utils/            # General utilities
+├── bin/              # Executables
+└── app.ts            # Main application
 ```
 
-### Contribuir al proyecto
+### Applied Principles
 
-¿Tienes ideas para mejorar la herramienta? ¡Las contribuciones son bienvenidas!
+- **SRP (Single Responsibility Principle)**: Each class has a specific responsibility
+- **DRY (Don't Repeat Yourself)**: Reusable code without duplication
+- **Clean Code**: Descriptive names, small functions, clear structure
+- **Separation of Concerns**: Clear separation between analysis, suggestions, CLI, and configuration
 
-1. Haz un fork del repositorio: [github.com/juandape/name-suggester](https://github.com/juandape/name-suggester)
-2. Crea una rama para tu funcionalidad (`git checkout -b feature/nueva-funcionalidad`)
-3. Realiza tus cambios y haz commits (`git commit -am 'Agrega nueva funcionalidad'`)
-4. Sube tus cambios a GitHub (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request desde tu fork a [juandape/name-suggester](https://github.com/juandape/name-suggester)
+## 💡 Types of Suggestions
 
-### Reportar problemas
+### Functions
 
-Si encuentras algún error o tienes alguna sugerencia, por favor [abre un issue](https://github.com/juandape/name-suggester/issues) en el repositorio de GitHub.
+- Event handlers (`handle*`, `on*`)
+- API functions (`fetch*`, `load*`, `retrieve*`)
+- Validators (`validate*`, `is*Valid`)
+- Initializers (`initialize*`, `setup*`, `create*`)
 
-## Licencia
+### Variables
 
-MIT
+- States and flags (`is*`, `has*`, `should*`)
+- Data and collections (`items`, `collection`, `payload`)
+- Counters and indices (`counter`, `index`, `position`)
+
+### React Specific
+
+- Components (`*Component`)
+- Custom hooks (`use*`)
+- Event handlers (`handle*`, `on*`)
+- States (`*State`)
+
+## 📊 Example
+
+### Before
+
+```typescript
+function getData() {
+  const d = fetch('/api/users');
+  return d;
+}
+
+const flag = true;
+const arr = [1, 2, 3];
+```
+
+### After (suggestions)
+
+```typescript
+function fetchUserData() {
+  const userData = fetch('/api/users');
+  return userData;
+}
+
+const isVisible = true;
+const userItems = [1, 2, 3];
+```
+
+## 🎮 Interactive Demo
+
+When you run `namer-suggester`, you'll see an interactive menu:
+
+```
+🔍 Namer Suggester - Name Analyzer
+---------------------------------------
+🧰 Project detected: TYPESCRIPT
+🛠️ Framework: NEXTJS
+🤖 Suggestion engine: Automatic (tries all available)
+
+🔧 What would you like to do?
+❯ 📂 Analyze files and get naming suggestions
+  ⚙️ Configure AI providers
+  ❓ View help
+  ❌ Exit
+```
+
+## 📈 Benefits
+
+- **Improved Code Readability**: More descriptive and meaningful names
+- **Consistency**: Follows established naming conventions
+- **Team Alignment**: Standardized naming across the team
+- **Learning Tool**: Helps developers learn better naming practices
+- **Time Saving**: Automated suggestions instead of manual thinking
+- **Context Awareness**: Suggestions based on code context and purpose
+
+## 🔧 Development
+
+### Prerequisites
+
+- Node.js 16+
+- TypeScript 4.5+
+
+### Build
+
+```bash
+npm run build
+```
+
+### Project Structure
+
+The codebase is organized into specialized modules:
+
+- **analyzers/**: AST parsing and context extraction
+- **cli/**: Interactive user interface
+- **config/**: Configuration management
+- **providers/**: AI service integrations
+- **services/**: Core business logic
+- **types/**: TypeScript definitions
+- **utils/**: Shared utilities
+
+## 🤝 Contributing
+
+1. Fork the project
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Guidelines
+
+- Follow TypeScript best practices
+- Maintain test coverage
+- Update documentation
+- Follow existing code style
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Inspired by code naming best practices
+- Uses Babel for AST analysis
+- Integration with multiple AI providers for advanced suggestions
+- Built with modern TypeScript and Node.js
+
+## 📞 Support
+
+- 🐛 [Report Issues](https://github.com/juandape/name-suggester/issues)
+- 💬 [Discussions](https://github.com/juandape/name-suggester/discussions)
+- 📧 [Contact](mailto:juandape@gmail.com)
+
+## 🔮 Roadmap
+
+- [ ] Unit and integration tests
+- [ ] VS Code extension
+- [ ] More AI providers
+- [ ] Custom rule configuration
+- [ ] Batch processing mode
+- [ ] CI/CD integration
+- [ ] Support for more languages
+
+---
+
+**Made by [Juan David Peña](https://github.com/juandape)**
+
+_Helping developers write better, more readable code, one name at a time._
