@@ -52,6 +52,47 @@ Responde SOLO con los nombres alternativos separados por comas, sin explicacione
    * @returns Processed suggestions
    */
   protected processSuggestions(response: string, original: string): string[] {
+    // Primero intentamos procesar como lista numerada (1. item)
+    const numberedListRegex = /\d+\.\s*`?([a-zA-Z_$][a-zA-Z0-9_$]*)`?/g;
+    const numberedMatches = response.match(numberedListRegex);
+
+    if (numberedMatches) {
+      const itemRegex = /\d+\.\s*`?([a-zA-Z_$][a-zA-Z0-9_$]*)`?/;
+      const suggestions = numberedMatches
+        .map((item) => {
+          const match = itemRegex.exec(item);
+          return match ? match[1] : null;
+        })
+        .filter(
+          (s): s is string => s !== null && s !== original && s.length > 0
+        );
+
+      if (suggestions.length > 0) {
+        return suggestions;
+      }
+    }
+
+    // Intentamos procesar como lista con guiones (- item)
+    const dashListRegex = /-\s*`?([a-zA-Z_$][a-zA-Z0-9_$]*)`?/g;
+    const dashMatches = response.match(dashListRegex);
+
+    if (dashMatches) {
+      const dashItemRegex = /-\s*`?([a-zA-Z_$][a-zA-Z0-9_$]*)`?/;
+      const suggestions = dashMatches
+        .map((item) => {
+          const match = dashItemRegex.exec(item);
+          return match ? match[1] : null;
+        })
+        .filter(
+          (s): s is string => s !== null && s !== original && s.length > 0
+        );
+
+      if (suggestions.length > 0) {
+        return suggestions;
+      }
+    }
+
+    // Si no hay formato de lista, procesar como separado por comas (formato original)
     return response
       .split(',')
       .map((s) => s.trim())

@@ -1,6 +1,6 @@
-# Namer Suggester
+# Code Namer
 
-[![npm version](https://badge.fury.io/js/namer-suggester.svg)](https://badge.fury.io/js/namer-suggester)
+[![npm version](https://badge.fury.io/js/code-namer.svg)](https://badge.fury.io/js/code-namer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
@@ -22,13 +22,89 @@ A powerful tool to analyze and improve variable and function names in JavaScript
 ### Global Installation
 
 ```bash
-npm install -g namer-suggester
+npm install -g code-namer
 ```
 
 ### Project-specific Installation
 
 ```bash
-npm install --save-dev namer-suggester
+npm install --save-dev code-namer
+```
+
+## 🤖 AI Setup (Optional)
+
+### Ollama - Free Local AI (Recommended)
+
+Ollama allows you to run AI models locally for free, ensuring privacy and no API costs.
+
+#### Installation
+
+**macOS:**
+
+```bash
+# Install Ollama
+brew install ollama
+
+# Start the service
+brew services start ollama
+```
+
+**Windows:**
+
+```bash
+# Download from https://ollama.ai/download/windows
+# Or use winget
+winget install Ollama.Ollama
+```
+
+**Linux:**
+
+```bash
+curl -fsSL https://ollama.ai/install.sh | sh
+```
+
+#### Model Setup
+
+After installing Ollama, download a lightweight model:
+
+```bash
+# Download a small, fast model (1.3GB)
+ollama pull llama3.2:1b
+
+# Or a more capable model (4.7GB)
+ollama pull llama3.2:3b
+
+# List installed models
+ollama list
+```
+
+#### Verify Installation
+
+```bash
+# Test that Ollama is working
+ollama run llama3.2:1b "Hello, can you suggest better names for a variable called 'data'?"
+```
+
+### OpenAI (Paid)
+
+If you prefer OpenAI's models:
+
+1. Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. Copy the example environment file:
+   ```bash
+   cp .env.example .env
+   ```
+3. Edit `.env` and add your API key:
+   ```bash
+   OPENAI_API_KEY=your_actual_api_key_here
+   ```
+
+### Auto-Setup
+
+Run the automatic setup script to configure Ollama:
+
+```bash
+npm run setup-ollama
 ```
 
 ## 🎯 Usage
@@ -36,13 +112,13 @@ npm install --save-dev namer-suggester
 ### Command Line
 
 ```bash
-namer-suggester
+code-namer
 ```
 
 ### Programmatic Usage
 
 ```typescript
-import { NamerSuggesterApp, CodeAnalyzer, SuggestionService } from 'namer-suggester';
+import { NamerSuggesterApp, CodeAnalyzer, SuggestionService } from 'code-namer';
 
 // Use the complete application
 const app = new NamerSuggesterApp();
@@ -66,37 +142,51 @@ const suggestions = await suggestionService.getSuggestions(
 
 Create a `.ai-config.json` file in your project:
 
+#### Option 1: Free Local AI (Recommended)
+
+```json
+{
+  "provider": "ollama",
+  "ollama": {
+    "endpoint": "http://localhost:11434/api/generate",
+    "model": "llama3.2:1b"
+  }
+}
+```
+
+#### Option 2: Mixed Setup (Free + Paid fallback)
+
 ```json
 {
   "provider": "auto",
+  "ollama": {
+    "endpoint": "http://localhost:11434/api/generate",
+    "model": "llama3.2:1b"
+  },
   "openai": {
     "apiKey": "your-api-key-here",
     "model": "gpt-3.5-turbo"
-  },
-  "anthropic": {
-    "apiKey": "your-api-key-here",
-    "model": "claude-instant-1"
-  },
-  "ollama": {
-    "endpoint": "http://localhost:11434/api/generate",
-    "model": "llama2"
-  },
-  "gemini": {
-    "apiKey": "your-api-key-here",
-    "model": "gemini-pro"
   }
+}
+```
+
+#### Option 3: Rules Only (No AI)
+
+```json
+{
+  "provider": "rules"
 }
 ```
 
 ### Supported Providers
 
-- **auto**: Tries all available providers
-- **rules**: Only predefined rules (no AI)
-- **copilot**: GitHub Copilot CLI
-- **openai**: OpenAI GPT models
-- **anthropic**: Anthropic Claude
-- **ollama**: Local models with Ollama
-- **gemini**: Google Gemini
+- **🆓 ollama**: Free local models (Recommended)
+- **🆓 rules**: Predefined naming rules only
+- **💰 openai**: OpenAI GPT models (Paid)
+- **💰 anthropic**: Anthropic Claude (Paid)
+- **💰 gemini**: Google Gemini (Paid)
+- **🔄 auto**: Tries all available providers
+- **🐙 copilot**: GitHub Copilot CLI
 
 ## 🏗️ Architecture
 
@@ -172,7 +262,7 @@ const userItems = [1, 2, 3];
 
 ## 🎮 Interactive Demo
 
-When you run `namer-suggester`, you'll see an interactive menu:
+When you run `code-namer`, you'll see an interactive menu:
 
 ```
 🔍 Namer Suggester - Name Analyzer
@@ -237,6 +327,52 @@ The codebase is organized into specialized modules:
 - Update documentation
 - Follow existing code style
 
+## ❓ FAQ
+
+### Which AI provider should I use?
+
+**For most users, we recommend Ollama:**
+
+- ✅ **Free**: No API costs
+- ✅ **Private**: Your code never leaves your machine
+- ✅ **Fast**: No network latency
+- ✅ **Reliable**: No rate limits or quotas
+
+**Use OpenAI if:**
+
+- You already have credits
+- You need the absolute best quality suggestions
+- You don't mind the API costs
+
+### Does this work offline?
+
+**With Ollama: Yes!** Once you download a model, everything works completely offline.
+
+**With OpenAI: No.** Requires internet connection for API calls.
+
+### How much disk space does Ollama use?
+
+- `llama3.2:1b`: ~1.3GB (recommended for fast suggestions)
+- `llama3.2:3b`: ~4.7GB (better quality, slower)
+
+### Is my code sent to external servers?
+
+**With Ollama: No.** Everything stays on your local machine.
+
+**With OpenAI: Yes.** Code snippets are sent to OpenAI's servers for analysis.
+
+### Can I use this in CI/CD?
+
+Yes! Use the `rules` provider for CI/CD environments:
+
+```json
+{
+  "provider": "rules"
+}
+```
+
+This uses only predefined rules without requiring AI models.
+
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -250,8 +386,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 [Report Issues](https://github.com/juandape/name-suggester/issues)
-- 💬 [Discussions](https://github.com/juandape/name-suggester/discussions)
+- 🐛 [Report Issues](https://github.com/juandape/code-namer/issues)
+- 💬 [Discussions](https://github.com/juandape/code-namer/discussions)
 - 📧 [Contact](mailto:juandape@gmail.com)
 
 ## 🔮 Roadmap
