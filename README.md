@@ -1,6 +1,6 @@
-# Code Namer
+# Project Code Namer
 
-[![npm version](https://badge.fury.io/js/code-namer.svg)](https://badge.fury.io/js/code-namer)
+[![npm version](https://badge.fury.io/js/project-code-namer.svg)](https://badge.fury.io/js/project-code-namer)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
@@ -22,13 +22,13 @@ A powerful tool to analyze and improve variable and function names in JavaScript
 ### Global Installation
 
 ```bash
-npm install -g code-namer
+npm install -g project-code-namer
 ```
 
 ### Project-specific Installation
 
 ```bash
-npm install --save-dev code-namer
+npm install --save-dev project-code-namer
 ```
 
 ## 🤖 AI Setup (Optional)
@@ -112,13 +112,13 @@ npm run setup-ollama
 ### Command Line
 
 ```bash
-code-namer
+project-code-namer
 ```
 
 ### Programmatic Usage
 
 ```typescript
-import { NamerSuggesterApp, CodeAnalyzer, SuggestionService } from 'code-namer';
+import { NamerSuggesterApp, CodeAnalyzer, SuggestionService } from 'project-code-namer';
 
 // Use the complete application
 const app = new NamerSuggesterApp();
@@ -262,7 +262,7 @@ const userItems = [1, 2, 3];
 
 ## 🎮 Interactive Demo
 
-When you run `code-namer`, you'll see an interactive menu:
+When you run `project-code-namer`, you'll see an interactive menu:
 
 ```
 🔍 Namer Suggester - Name Analyzer
@@ -386,8 +386,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- 🐛 [Report Issues](https://github.com/juandape/code-namer/issues)
-- 💬 [Discussions](https://github.com/juandape/code-namer/discussions)
+- 🐛 [Report Issues](https://github.com/juandape/project-code-namer/issues)
+- 💬 [Discussions](https://github.com/juandape/project-code-namer/discussions)
 - 📧 [Contact](mailto:juandape@gmail.com)
 
 ## 🔮 Roadmap

@@ -47,13 +47,13 @@ If you're upgrading from a previous version, here are the key changes:
 
 ```bash
 # Install the tool
-npm install -g code-namer
+npm install -g project-code-namer
 
 # Setup free AI (optional)
 npm run setup-ollama
 
 # Run the tool
-code-namer
+project-code-namer
 ```
 
 ### Migration Commands
@@ -86,5 +86,5 @@ namer-suggester
 ### Need Help?
 
 - 📖 [Read the full documentation](README.md)
-- 🐛 [Report issues](https://github.com/juandape/code-namer/issues)
-- 💬 [Ask questions](https://github.com/juandape/code-namer/discussions)
+- 🐛 [Report issues](https://github.com/juandape/project-code-namer/issues)
+- 💬 [Ask questions](https://github.com/juandape/project-code-namer/discussions)
