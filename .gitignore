@@ -90,3 +90,5 @@ run-tasks.js
 .pnp.cjs
 .pnp.loader.mjs
 
+/prompts
+.copilotrc
