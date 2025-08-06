@@ -26,13 +26,13 @@ export class FileSelector {
         {
           type: 'list',
           name: 'selection',
-          message: '📂 Selecciona una carpeta raíz para comenzar:',
+          message: '📂 Select a root folder to start:',
           choices: [
             ...this.ROOT_DIRS.filter((dir) => fs.existsSync(dir)).map(
               (dir) => ({ name: `📁 ${dir}`, value: dir })
             ),
-            { name: '🔍 Buscar archivo por patrón', value: 'search' },
-            { name: '📋 Especificar ruta manualmente', value: 'manual' },
+            { name: '🔍 Search file by pattern', value: 'search' },
+            { name: '📋 Specify path manually', value: 'manual' },
           ],
         },
       ]);
@@ -62,7 +62,7 @@ export class FileSelector {
         {
           type: 'list',
           name: 'selection',
-          message: `📂 Navegando: ${currentDir}\nSelecciona un archivo o carpeta:`,
+          message: `📂 Navigating: ${currentDir}\nSelect a file or folder:`,
           pageSize: 15,
           choices,
         },
@@ -124,10 +124,10 @@ export class FileSelector {
     items: { dirs: NavigationItem[]; files: NavigationItem[] }
   ) {
     const navOptions: NavigationItem[] = [
-      { name: '⬅️ Volver al directorio anterior', value: 'back', isDir: true },
-      { name: '🏠 Volver al inicio', value: 'home', isDir: true },
+      { name: '⬅️ Go back to previous directory', value: 'back', isDir: true },
+      { name: '🏠 Go back to home', value: 'home', isDir: true },
       {
-        name: '✅ Seleccionar este directorio completo',
+        name: '✅ Select this entire directory',
         value: currentDir,
         isDir: true,
       },
@@ -143,9 +143,9 @@ export class FileSelector {
 
     return [
       ...navOptions,
-      new inquirer.Separator('---- Directorios ----'),
+      new inquirer.Separator('---- Directories ----'),
       ...items.dirs,
-      new inquirer.Separator('---- Archivos ----'),
+      new inquirer.Separator('---- Files ----'),
       ...items.files,
     ];
   }
@@ -170,7 +170,7 @@ export class FileSelector {
     }
 
     if (selection === currentDir) {
-      console.log(`\n✅ Seleccionado directorio completo: ${currentDir}`);
+      console.log(`\n✅ Selected entire directory: ${currentDir}`);
       return { action: 'select', path: selection };
     }
 
@@ -193,7 +193,7 @@ export class FileSelector {
         type: 'input',
         name: 'pattern',
         message:
-          '🔍 Introduce un patrón para buscar archivos (ej: "*.component.ts", "user*.ts"):',
+          '🔍 Enter a pattern to search for files (e.g.: "*.component.ts", "user*.ts"):',
       },
     ]);
 
@@ -205,7 +205,7 @@ export class FileSelector {
     }
 
     if (results.length === 0) {
-      console.log('❌ No se encontraron archivos que coincidan con el patrón.');
+      console.log('❌ No files matching the pattern were found.');
       return this.selectFileOrFolder();
     }
 
@@ -213,7 +213,7 @@ export class FileSelector {
       {
         type: 'list',
         name: 'selectedFile',
-        message: `📑 Se encontraron ${results.length} archivos. Selecciona uno:`,
+        message: `📑 ${results.length} files found. Select one:`,
         pageSize: 15,
         choices: results.map((file) => ({ name: file, value: file })),
       },
@@ -228,14 +228,14 @@ export class FileSelector {
         type: 'input',
         name: 'customPath',
         message:
-          '📝 Introduce la ruta del archivo o carpeta (relativa al proyecto):',
+          '📝 Enter the file or folder path (relative to the project):',
       },
     ]);
 
     if (fs.existsSync(customPath)) {
       return customPath;
     } else {
-      console.log('❌ Ruta no encontrada. Volviendo al menú principal...');
+      console.log('❌ Path not found. Returning to main menu...');
       return this.selectFileOrFolder();
     }
   }

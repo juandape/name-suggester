@@ -4,6 +4,10 @@ import traverse from '@babel/traverse';
 import { AnalyzeItem, AnalysisResult } from '../types/index.js';
 import { ContextExtractor } from './contextExtractor.js';
 
+// Fix for ES module compatibility with @babel/traverse
+const traverseFunction =
+  typeof traverse === 'function' ? traverse : (traverse as any).default;
+
 /**
  * Analyzes JavaScript/TypeScript files for identifiers
  */
@@ -38,7 +42,7 @@ export class CodeAnalyzer {
 
       const results: AnalyzeItem[] = [];
 
-      traverse(ast, {
+      traverseFunction(ast, {
         FunctionDeclaration: (path) => {
           const name = path.node.id?.name;
           if (name) {

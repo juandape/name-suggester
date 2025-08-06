@@ -45,7 +45,7 @@ export class SuggestionPresenter {
     ) => Promise<string[]>
   ): Promise<void> {
     console.log(
-      `\n🔍 Analizando ${item.type}: "${item.name}" (línea ${
+      `\n🔍 Analyzing ${item.type}: "${item.name}" (line ${
         item.line || 'N/A'
       })`
     );
@@ -60,7 +60,7 @@ export class SuggestionPresenter {
 
       if (suggestions.length === 0) {
         console.log(
-          `⚠️ No se encontraron sugerencias para ${item.type} "${item.name}"`
+          `⚠️ No suggestions found for ${item.type} "${item.name}"`
         );
         return;
       }
@@ -74,11 +74,11 @@ export class SuggestionPresenter {
         filePath
       );
 
-      const selectedLabel = newName === item.name ? 'mantenido' : 'cambiado a';
-      console.log(`✅ Nombre ${selectedLabel}: \`${newName}\`\n`);
+      const selectedLabel = newName === item.name ? 'kept' : 'changed to';
+      console.log(`✅ Name ${selectedLabel}: \`${newName}\`\n`);
     } catch (error) {
       console.error(
-        `❌ Error obteniendo sugerencias para "${item.name}": ${
+        `❌ Error getting suggestions for "${item.name}": ${
           (error as Error).message
         }`
       );
@@ -90,7 +90,7 @@ export class SuggestionPresenter {
     suggestions: string[]
   ): Promise<string> {
     const choices = [
-      { name: `${item.name} (mantener)`, value: item.name },
+      { name: `${item.name} (keep)`, value: item.name },
       ...suggestions.map((suggestion) => ({
         name: suggestion,
         value: suggestion,
@@ -101,7 +101,7 @@ export class SuggestionPresenter {
       {
         type: 'list',
         name: 'newName',
-        message: `💡 Sugerencias para ${item.type} "${item.name}" (línea ${
+        message: `💡 Suggestions for ${item.type} "${item.name}" (line ${
           item.line || 'N/A'
         }):`,
         pageSize: 10,
@@ -142,14 +142,14 @@ export class SuggestionPresenter {
     totalItems: number,
     changedItems: number
   ): void {
-    console.log('\n📊 Estadísticas del análisis:');
-    console.log(`📂 Archivos analizados: ${totalFiles}`);
-    console.log(`🔍 Identificadores encontrados: ${totalItems}`);
+    console.log('\n📊 Analysis statistics:');
+    console.log(`📂 Files analyzed: ${totalFiles}`);
+    console.log(`🔍 Identifiers found: ${totalItems}`);
     console.log(
-      `✏️ Identificadores con sugerencias de cambio: ${changedItems}`
+      `✏️ Identifiers with change suggestions: ${changedItems}`
     );
     console.log(
-      `📝 Se ha creado un registro detallado en 'namer-suggester.log'`
+      `📝 A detailed log has been created in 'namer-suggester.log'`
     );
   }
 
@@ -157,51 +157,51 @@ export class SuggestionPresenter {
    * Shows help information
    */
   public static showHelp(): void {
-    console.log('\n📚 Ayuda de Namer Suggester');
+    console.log('\n📚 Namer Suggester Help');
     console.log('=========================');
     console.log(
-      'Namer Suggester es una herramienta que analiza tus archivos JavaScript/TypeScript'
+      'Namer Suggester is a tool that analyzes your JavaScript/TypeScript files'
     );
     console.log(
-      'y sugiere mejores nombres para funciones, variables y otros identificadores.'
+      'and suggests better names for functions, variables, and other identifiers.'
     );
 
-    console.log('\n🔧 Opciones principales:');
+    console.log('\n🔧 Main options:');
     console.log(
-      '1. Analizar archivos: Selecciona archivos o directorios para analizar.'
+      '1. Analyze files: Select files or directories to analyze.'
     );
     console.log(
-      '2. Configurar IA: Configura los proveedores de IA para obtener mejores sugerencias.'
-    );
-
-    console.log('\n🤖 Proveedores de IA soportados:');
-    console.log(
-      '- GitHub Copilot CLI (requiere gh CLI con extensión de Copilot)'
-    );
-    console.log('- OpenAI (GPT-3.5/GPT-4, requiere API key)');
-    console.log('- Anthropic Claude (requiere API key)');
-    console.log('- Ollama (modelos locales, ejecutándose en tu máquina)');
-    console.log('- Google Gemini (requiere API key)');
-
-    console.log('\n📋 Cómo usar la herramienta:');
-    console.log('1. Selecciona "Analizar archivos" en el menú principal');
-    console.log(
-      '2. Navega por la estructura de directorios o busca archivos por patrón'
-    );
-    console.log(
-      '3. Para cada identificador encontrado, revisa las sugerencias y elige la mejor'
-    );
-    console.log(
-      '4. Todas las sugerencias se guardan en namer-suggester.log para referencia futura'
+      '2. Configure AI: Configure AI providers to get better suggestions.'
     );
 
-    console.log('\n⚙️ Archivo de configuración:');
-    console.log('La configuración de IA se guarda en:');
-    console.log('- .ai-config.json en tu directorio actual');
+    console.log('\n🤖 Supported AI providers:');
     console.log(
-      '- .namer-suggester-ai-config.json en tu directorio de usuario'
+      '- GitHub Copilot CLI (requires gh CLI with Copilot extension)'
+    );
+    console.log('- OpenAI (GPT-3.5/GPT-4, requires API key)');
+    console.log('- Anthropic Claude (requires API key)');
+    console.log('- Ollama (local models, running on your machine)');
+    console.log('- Google Gemini (requires API key)');
+
+    console.log('\n📋 How to use the tool:');
+    console.log('1. Select "Analyze files" in the main menu');
+    console.log(
+      '2. Browse the directory structure or search for files by pattern'
+    );
+    console.log(
+      '3. For each identifier found, review the suggestions and choose the best one'
+    );
+    console.log(
+      '4. All suggestions are saved in namer-suggester.log for future reference'
     );
 
-    console.log('\n🔍 Para más información, consulta el README.md\n');
+    console.log('\n⚙️ Configuration file:');
+    console.log('AI configuration is saved in:');
+    console.log('- .ai-config.json in your current directory');
+    console.log(
+      '- .namer-suggester-ai-config.json in your user directory'
+    );
+
+    console.log('\n🔍 For more information, see the README.md\n');
   }
 }

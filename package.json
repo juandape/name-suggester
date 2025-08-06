@@ -1,6 +1,6 @@
 {
   "name": "project-code-namer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A tool to analyze and improve variable and function names in JavaScript/TypeScript projects using AI-powered suggestions",
   "main": "dist/cjs/index.js",
   "type": "module",
@@ -48,6 +48,7 @@
   "dependencies": {
     "@babel/parser": "^7.22.0",
     "@babel/traverse": "^7.22.0",
+    "@babel/types": "^7.22.0",
     "dotenv": "^17.2.1",
     "inquirer": "^9.2.0",
     "node-fetch": "^3.3.2",

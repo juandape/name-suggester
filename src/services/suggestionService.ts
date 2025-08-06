@@ -45,7 +45,7 @@ export class SuggestionService {
     );
 
     console.log(
-      `⚙️ Reglas predefinidas generaron ${ruleSuggestions.length} sugerencias`
+      `⚙️ Predefined rules generated ${ruleSuggestions.length} suggestions`
     );
 
     // Get AI suggestions if enabled
@@ -58,7 +58,7 @@ export class SuggestionService {
         fileContext
       );
       console.log(
-        `🤖 IA generó ${aiSuggestions.length} sugerencias adicionales`
+        `🤖 AI generated ${aiSuggestions.length} additional suggestions`
       );
     }
 
@@ -68,7 +68,7 @@ export class SuggestionService {
     // Ensure we have some suggestions
     if (allSuggestions.length === 0) {
       console.log(
-        `⚠️ No se encontraron sugerencias para ${type} "${original}", generando sugerencias básicas...`
+        `⚠️ No suggestions found for ${type} "${original}", generating basic suggestions...`
       );
       return this.generateFallbackSuggestions(original, type);
     }
@@ -113,13 +113,13 @@ export class SuggestionService {
       try {
         if (await provider.isAvailable()) {
           console.log(
-            `🔄 Intentando obtener sugerencias de ${provider.constructor.name}...`
+            `🔄 Trying to get suggestions from ${provider.constructor.name}...`
           );
           const response = await provider.getSuggestions(context);
 
           if (response.suggestions.length > 0) {
             console.log(
-              `✨ Sugerencias obtenidas de ${response.provider || providerName}`
+              `✨ Suggestions obtained from ${response.provider || providerName}`
             );
             return response.suggestions;
           }
@@ -132,7 +132,7 @@ export class SuggestionService {
     }
 
     console.log(
-      'Info: Ningún servicio de IA disponible, usando solo reglas predefinidas.'
+      'Info: No AI service available, using only predefined rules.'
     );
     return [];
   }
@@ -143,28 +143,28 @@ export class SuggestionService {
   ): Promise<string[]> {
     const provider = this.providers.get(providerName);
     if (!provider) {
-      console.log(`⚠️ Proveedor ${providerName} no configurado`);
+      console.log(`⚠️ Provider ${providerName} not configured`);
       return [];
     }
 
     try {
       if (await provider.isAvailable()) {
         console.log(
-          `🔄 Intentando obtener sugerencias de ${provider.constructor.name}...`
+          `🔄 Trying to get suggestions from ${provider.constructor.name}...`
         );
         const response = await provider.getSuggestions(context);
 
         if (response.suggestions.length > 0) {
           console.log(
-            `✨ Sugerencias obtenidas de ${response.provider || providerName}`
+            `✨ Suggestions obtained from ${response.provider || providerName}`
           );
           return response.suggestions;
         }
       } else {
-        console.log(`⚠️ Proveedor ${providerName} no disponible`);
+        console.log(`⚠️ Provider ${providerName} not available`);
       }
     } catch (error) {
-      console.log(`❌ Error con ${providerName}: ${(error as Error).message}`);
+      console.log(`❌ Error with ${providerName}: ${(error as Error).message}`);
     }
 
     return [];

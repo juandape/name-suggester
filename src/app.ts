@@ -41,10 +41,10 @@ export class NamerSuggesterApp {
   }
 
   private showWelcome(): void {
-    console.log('\n🔍 Namer Suggester - Analizador de nombres');
+    console.log('\n🔍 Namer Suggester - Name Analyzer');
     console.log('---------------------------------------');
     console.log(
-      'Este script analiza tus archivos JavaScript/TypeScript y sugiere mejores nombres para funciones y variables.\n'
+      'This script analyzes your JavaScript/TypeScript files and suggests better names for functions and variables.\n'
     );
   }
 
@@ -53,8 +53,8 @@ export class NamerSuggesterApp {
       await import('@babel/parser');
       await import('@babel/traverse');
     } catch (depError) {
-      console.error('❌ Error: Faltan dependencias necesarias.');
-      console.log('🔄 Ejecutando instalador de dependencias...');
+      console.error('❌ Error: Required dependencies are missing.');
+      console.log('🔄 Running dependency installer...');
       console.debug('Dependency error:', (depError as Error).message);
 
       try {
@@ -64,14 +64,14 @@ export class NamerSuggesterApp {
             stdio: 'inherit',
           }
         );
-        console.log('✅ Dependencias instaladas correctamente.\n');
+        console.log('✅ Dependencies installed successfully.\n');
       } catch (installError) {
         console.error(
-          '❌ Error instalando dependencias:',
+          '❌ Error installing dependencies:',
           (installError as Error).message
         );
         console.log(
-          '\n⚠️ Por favor, instala manualmente las dependencias necesarias:'
+          '\n⚠️ Please install the required dependencies manually:'
         );
         console.log(
           'npm install @babel/parser @babel/traverse inquirer node-fetch'
@@ -85,18 +85,18 @@ export class NamerSuggesterApp {
     try {
       const projectInfo = ConfigManager.detectProjectType();
       console.log(
-        `🧰 Proyecto detectado: ${projectInfo.projectType.toUpperCase()}`
+        `🧰 Detected project: ${projectInfo.projectType.toUpperCase()}`
       );
       if (projectInfo.framework !== 'unknown') {
         console.log(`🛠️ Framework: ${projectInfo.framework.toUpperCase()}`);
       }
     } catch (projectError) {
       console.log(
-        `⚠️ No se pudo detectar el tipo de proyecto: ${
+        `⚠️ Could not detect project type: ${
           (projectError as Error).message
         }`
       );
-      console.log('Continuando con análisis genérico...');
+      console.log('Continuing with generic analysis...');
     }
   }
 
@@ -106,10 +106,10 @@ export class NamerSuggesterApp {
       const providerDescription = this.getProviderDescription(
         aiConfig.provider
       );
-      console.log(`🤖 Motor de sugerencias: ${providerDescription}\n`);
+      console.log(`🤖 Suggestion engine: ${providerDescription}\n`);
     } catch (error) {
       console.log(
-        '⚠️ No se pudo cargar configuración de IA. Usando reglas predefinidas.\n'
+        '⚠️ Could not load AI configuration. Using predefined rules.\n'
       );
       console.debug('Config error:', (error as Error).message);
     }
@@ -118,9 +118,9 @@ export class NamerSuggesterApp {
   private getProviderDescription(provider: string): string {
     switch (provider) {
       case 'auto':
-        return 'Automático (prueba todos los disponibles)';
+        return 'Automatic (tries all available)';
       case 'rules':
-        return 'Reglas predefinidas (sin IA)';
+        return 'Predefined rules (no AI)';
       default:
         return provider.toUpperCase();
     }
@@ -131,15 +131,15 @@ export class NamerSuggesterApp {
       {
         type: 'list',
         name: 'action',
-        message: '🔧 ¿Qué deseas hacer?',
+        message: '🔧 What do you want to do?',
         choices: [
           {
-            name: '📂 Analizar archivos y obtener sugerencias de nombres',
+            name: '📂 Analyze files and get name suggestions',
             value: 'analyze',
           },
-          { name: '⚙️ Configurar proveedores de IA', value: 'configure-ai' },
-          { name: '❓ Ver ayuda', value: 'help' },
-          { name: '❌ Salir', value: 'exit' },
+          { name: '⚙️ Configure AI providers', value: 'configure-ai' },
+          { name: '❓ View help', value: 'help' },
+          { name: '❌ Exit', value: 'exit' },
         ],
       },
     ]);
@@ -150,7 +150,7 @@ export class NamerSuggesterApp {
   private async handleAction(action: string): Promise<void> {
     switch (action) {
       case 'exit':
-        console.log('👋 ¡Hasta pronto!');
+        console.log('👋 See you soon!');
         process.exit(0);
         break;
       case 'help':
@@ -171,10 +171,10 @@ export class NamerSuggesterApp {
       const { location } = await this.selectConfigLocation();
       ConfigManager.saveAIConfig(config, location);
       console.log(
-        '✅ Configuración completada. Ejecuta nuevamente el programa para analizar archivos.'
+        '✅ Configuration completed. Run the program again to analyze files.'
       );
     } catch (error) {
-      console.error('❌ Error configurando IA:', (error as Error).message);
+      console.error('❌ Error configuring AI:', (error as Error).message);
     }
   }
 
@@ -185,10 +185,10 @@ export class NamerSuggesterApp {
       {
         type: 'list',
         name: 'location',
-        message: '📂 ¿Dónde deseas guardar la configuración de IA?',
+        message: '📂 Where do you want to save the AI configuration?',
         choices: [
-          { name: 'En este proyecto (recomendado)', value: 'project' },
-          { name: 'En tu directorio de usuario (global)', value: 'global' },
+          { name: 'In this project (recommended)', value: 'project' },
+          { name: 'In your user directory (global)', value: 'global' },
         ],
       },
     ]);
@@ -201,7 +201,7 @@ export class NamerSuggesterApp {
 
       if (files.length === 0) {
         console.log(
-          `⚠️ No se encontraron archivos JavaScript/TypeScript en: ${target}`
+          `⚠️ No JavaScript/TypeScript files found in: ${target}`
         );
         return;
       }
@@ -209,14 +209,14 @@ export class NamerSuggesterApp {
       if (files.length > 20) {
         const shouldContinue = await this.confirmLargeAnalysis(files.length);
         if (!shouldContinue) {
-          console.log('🛑 Operación cancelada por el usuario.');
+          console.log('🛑 Operation cancelled by user.');
           return;
         }
       }
 
       await this.processFiles(files);
     } catch (error) {
-      console.error('❌ Error durante el análisis:', (error as Error).message);
+      console.error('❌ Error during analysis:', (error as Error).message);
     }
   }
 
@@ -224,15 +224,15 @@ export class NamerSuggesterApp {
     try {
       const stat = fs.statSync(target);
       if (stat.isDirectory()) {
-        console.log(`\n📁 Analizando directorio: ${target}`);
-        console.log('⏳ Buscando archivos JavaScript/TypeScript...');
+        console.log(`\n📁 Analyzing directory: ${target}`);
+        console.log('⏳ Searching for JavaScript/TypeScript files...');
         return walkDirectory(target);
       } else {
         return [target];
       }
     } catch (error) {
       throw new Error(
-        `Error accediendo a ${target}: ${(error as Error).message}`
+        `Error accessing ${target}: ${(error as Error).message}`
       );
     }
   }
@@ -242,7 +242,7 @@ export class NamerSuggesterApp {
       {
         type: 'confirm',
         name: 'confirm',
-        message: `⚠️ Se encontraron ${fileCount} archivos. ¿Deseas continuar con el análisis?`,
+        message: `⚠️ ${fileCount} files found. Do you want to continue with the analysis?`,
         default: true,
       },
     ]);
@@ -250,7 +250,7 @@ export class NamerSuggesterApp {
   }
 
   private async processFiles(files: string[]): Promise<void> {
-    console.log(`✅ Se encontraron ${files.length} archivos para analizar.\n`);
+    console.log(`✅ Found ${files.length} files to analyze.\n`);
 
     const stats: AnalysisStats = {
       totalFiles: files.length,
@@ -260,8 +260,8 @@ export class NamerSuggesterApp {
 
     const progress = new ProgressBar({
       total: files.length,
-      prefix: '📊 Analizando archivos:',
-      suffix: 'Completado',
+      prefix: '📊 Analyzing files:',
+      suffix: 'Completed',
       length: 20,
     });
 
@@ -286,14 +286,14 @@ export class NamerSuggesterApp {
     filePath: string,
     stats: AnalysisStats
   ): Promise<void> {
-    console.log(`\n📁 Archivo actual: ${path.basename(filePath)}`);
+    console.log(`\n📁 Current file: ${path.basename(filePath)}`);
 
     try {
       const analysisResult = CodeAnalyzer.analyzeFile(filePath);
 
       if (analysisResult.results.length === 0) {
         console.log(
-          '  ℹ️  No se encontraron identificadores para analizar en este archivo.'
+          '  ℹ️  No identifiers found to analyze in this file.'
         );
         return;
       }
@@ -301,10 +301,10 @@ export class NamerSuggesterApp {
       stats.totalItems += analysisResult.results.length;
 
       console.log(
-        `  🔍 Se encontraron ${analysisResult.results.length} identificadores.`
+        `  🔍 Found ${analysisResult.results.length} identifiers.`
       );
       console.log(
-        `  📄 Contexto: ${analysisResult.fileContext.context || 'general'}`
+        `  📄 Context: ${analysisResult.fileContext.context || 'general'}`
       );
 
       if (
@@ -316,7 +316,7 @@ export class NamerSuggesterApp {
           .join(', ');
         const hasMore =
           analysisResult.fileContext.imports.length > 3 ? '...' : '';
-        console.log(`  📦 Importaciones: ${imports}${hasMore}`);
+        console.log(`  📦 Imports: ${imports}${hasMore}`);
       }
 
       await SuggestionPresenter.showSuggestionsFor(
@@ -333,7 +333,7 @@ export class NamerSuggesterApp {
       );
     } catch (error) {
       console.error(
-        `  ❌ Error analizando ${filePath}: ${(error as Error).message}`
+        `  ❌ Error analyzing ${filePath}: ${(error as Error).message}`
       );
     }
   }
@@ -347,14 +347,14 @@ export async function main(): Promise<void> {
     const app = new NamerSuggesterApp();
     await app.run();
   } catch (error) {
-    console.error('❌ Error fatal en la aplicación:', (error as Error).message);
-    console.error('Si este problema persiste, por favor reporta el error en:');
+    console.error('❌ Fatal error in the application:', (error as Error).message);
+    console.error('If this problem persists, please report the error at:');
     console.error('https://github.com/juandape/name-suggester/issues');
 
     if (process.env.DEBUG) {
-      console.error('\nDetalles del error (DEBUG):', error);
+      console.error('\nError details (DEBUG):', error);
     } else {
-      console.log('\nPara ver más detalles del error, ejecuta con DEBUG=true');
+      console.log('\nTo see more error details, run with DEBUG=true');
       console.log('DEBUG=true namer-suggester');
     }
 

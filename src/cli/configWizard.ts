@@ -27,15 +27,15 @@ export class ConfigWizard {
       {
         type: 'list',
         name: 'provider',
-        message: '🤖 ¿Qué proveedor de IA deseas utilizar?',
+        message: '🤖 Which AI provider do you want to use?',
         choices: [
-          { name: 'Automático (probar todos los disponibles)', value: 'auto' },
+          { name: 'Automatic (try all available)', value: 'auto' },
           { name: 'GitHub Copilot CLI', value: 'copilot' },
           { name: 'OpenAI (GPT)', value: 'openai' },
           { name: 'Anthropic Claude', value: 'anthropic' },
-          { name: 'Ollama (modelos locales)', value: 'ollama' },
+          { name: 'Ollama (local models)', value: 'ollama' },
           { name: 'Google Gemini', value: 'gemini' },
-          { name: 'Solo reglas predefinidas (sin IA)', value: 'rules' },
+          { name: 'Only predefined rules (no AI)', value: 'rules' },
         ],
       },
     ]);
@@ -79,16 +79,16 @@ export class ConfigWizard {
       {
         type: 'password',
         name: 'apiKey',
-        message: '🔑 Introduce tu API key de OpenAI:',
+        message: '🔑 Enter your OpenAI API key:',
         mask: '*',
       },
       {
         type: 'list',
         name: 'model',
-        message: '📊 Selecciona el modelo de OpenAI:',
+        message: '📊 Select the OpenAI model:',
         choices: [
-          { name: 'GPT-3.5 Turbo (más rápido)', value: 'gpt-3.5-turbo' },
-          { name: 'GPT-4 (más potente)', value: 'gpt-4' },
+          { name: 'GPT-3.5 Turbo (faster)', value: 'gpt-3.5-turbo' },
+          { name: 'GPT-4 (more powerful)', value: 'gpt-4' },
           { name: 'GPT-4 Turbo', value: 'gpt-4-turbo-preview' },
         ],
       },
@@ -105,18 +105,18 @@ export class ConfigWizard {
       {
         type: 'password',
         name: 'apiKey',
-        message: '🔑 Introduce tu API key de Anthropic:',
+        message: '🔑 Enter your Anthropic API key:',
         mask: '*',
       },
       {
         type: 'list',
         name: 'model',
-        message: '📊 Selecciona el modelo de Anthropic:',
+        message: '📊 Select the Anthropic model:',
         choices: [
-          { name: 'Claude Instant (más rápido)', value: 'claude-instant-1' },
+          { name: 'Claude Instant (faster)', value: 'claude-instant-1' },
           { name: 'Claude 2', value: 'claude-2' },
           {
-            name: 'Claude 3 Opus (más potente)',
+            name: 'Claude 3 Opus (most powerful)',
             value: 'claude-3-opus-20240229',
           },
         ],
@@ -134,14 +134,14 @@ export class ConfigWizard {
       {
         type: 'input',
         name: 'endpoint',
-        message: '🌐 URL del endpoint de Ollama:',
+        message: '🌐 Ollama endpoint URL:',
         default: 'http://localhost:11434/api/generate',
       },
       {
         type: 'input',
         name: 'model',
         message:
-          '📊 Nombre del modelo de Ollama (ej: llama2, codellama, mistral):',
+          '📊 Ollama model name (e.g., llama2, codellama, mistral):',
         default: 'llama2',
       },
     ]);
@@ -157,7 +157,7 @@ export class ConfigWizard {
       {
         type: 'password',
         name: 'apiKey',
-        message: '🔑 Introduce tu API key de Google Gemini:',
+        message: '🔑 Enter your Google Gemini API key:',
         mask: '*',
       },
     ]);

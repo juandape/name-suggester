@@ -17,7 +17,7 @@ export function walkDirectory(
 ): string[] {
   try {
     if (currentDepth > maxDepth) {
-      console.log(`⚠️ Alcanzada la profundidad máxima en: ${dir}`);
+      console.log(`⚠️ Maximum depth reached at: ${dir}`);
       return [];
     }
 
@@ -36,7 +36,7 @@ export function walkDirectory(
           return [];
         } catch (error) {
           console.error(
-            `❌ Error accediendo a: ${p}`,
+            `❌ Error accessing: ${p}`,
             (error as Error).message
           );
           return [];
@@ -44,7 +44,7 @@ export function walkDirectory(
       });
   } catch (error) {
     console.error(
-      `❌ Error leyendo directorio: ${dir}`,
+      `❌ Error reading directory: ${dir}`,
       (error as Error).message
     );
     return [];
@@ -78,7 +78,7 @@ export function findFilesByPattern(
     }
   } catch (error) {
     console.error(
-      `❌ Error buscando archivos en: ${dir}`,
+      `❌ Error searching files in: ${dir}`,
       (error as Error).message
     );
   }

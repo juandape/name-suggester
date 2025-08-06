@@ -67,7 +67,7 @@ export class ConfigManager {
 
     try {
       fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8');
-      console.log(`✅ Configuración guardada en ${configPath}`);
+      console.log(`✅ Configuration saved to ${configPath}`);
     } catch (error) {
       throw new Error(
         `Error saving config to ${configPath}: ${(error as Error).message}`
@@ -116,7 +116,7 @@ export class ConfigManager {
       return { projectType, framework };
     } catch (error) {
       console.debug(
-        'No se pudo determinar el tipo de proyecto:',
+        'Could not determine the project type:',
         (error as Error).message
       );
       return { projectType: 'unknown', framework: 'unknown' };

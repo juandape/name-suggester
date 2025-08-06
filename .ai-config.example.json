@@ -1,5 +1,9 @@
 {
-  "provider": "auto",
+  "provider": "ollama",
+  "ollama": {
+    "endpoint": "http://localhost:11434/api/generate",
+    "model": "llama3.2:1b"
+  },
   "openai": {
     "apiKey": "tu-api-key-aquí",
     "model": "gpt-3.5-turbo"
@@ -7,10 +11,6 @@
   "anthropic": {
     "apiKey": "tu-api-key-aquí",
     "model": "claude-instant-1"
-  },
-  "ollama": {
-    "endpoint": "http://localhost:11434/api/generate",
-    "model": "llama2"
   },
   "gemini": {
     "apiKey": "tu-api-key-aquí",
